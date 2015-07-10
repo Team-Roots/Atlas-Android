@@ -93,12 +93,4 @@ public class QRIdentityProvider extends IdentityProvider {
     public boolean passwordRequired() {
         return false;
     }
-
-    private static UUID uuidFromKeyString(String s) {
-        if (s == null) return null;
-        if (s.startsWith("layer:///") && !s.endsWith("/")) {
-            return UUID.fromString(s.substring(s.lastIndexOf("/") + 1));
-        }
-        return UUID.fromString(s);
-    }
 }
