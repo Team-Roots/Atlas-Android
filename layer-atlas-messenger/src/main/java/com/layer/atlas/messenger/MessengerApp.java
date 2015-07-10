@@ -66,7 +66,7 @@ public class MessengerApp extends Application implements AppIdCallback {
     @Override
     public void onCreate() {
         super.onCreate();
-        LayerClient.enableLogging();
+        LayerClient.enableLogging(this);
         LayerClient.applicationCreated(this);
         if (appId == null) {
             this.appId = loadAppId(); 
