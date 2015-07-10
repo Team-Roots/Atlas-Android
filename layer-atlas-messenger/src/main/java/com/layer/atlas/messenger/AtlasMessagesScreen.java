@@ -251,15 +251,13 @@ public class AtlasMessagesScreen extends Activity {
     private void preparePushMetadata(Message message) {
         Participant me = app.getParticipantProvider().getParticipant(app.getLayerClient().getAuthenticatedUserId());
         String senderName = Atlas.getFullName(me);
-        Map<String, String> metadata = new HashMap<String, String>();
         String text = Atlas.Tools.toString(message);
         if (!text.isEmpty()) {
             if (senderName != null && !senderName.isEmpty()) {
-                metadata.put(Message.ReservedMetadataKeys.PushNotificationAlertMessageKey.getKey(), senderName + ": " + text);
+                message.getOptions().pushNotificationMessage(senderName + ": " + text);
             } else {
-                metadata.put(Message.ReservedMetadataKeys.PushNotificationAlertMessageKey.getKey(), text);
+                message.getOptions().pushNotificationMessage(text);
             }
-            message.setMetadata(metadata);
         }
     }
 
