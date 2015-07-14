@@ -15,15 +15,6 @@
  */
 package com.layer.atlas;
 
-import java.text.DateFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
-
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Color;
@@ -55,6 +46,15 @@ import com.layer.sdk.messaging.Conversation;
 import com.layer.sdk.messaging.LayerObject;
 import com.layer.sdk.messaging.Message;
 import com.layer.sdk.messaging.Message.RecipientStatus;
+
+import java.text.DateFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
 
 /**
  * @author Oleg Orlov
@@ -154,7 +154,9 @@ public class AtlasConversationsList extends FrameLayout implements LayerChangeEv
                     textInitials.setTextColor(avatarTextColor);
                     ((GradientDrawable) textInitials.getBackground()).setColor(avatarBackgroundColor);
                     avatarSingle.setVisibility(View.VISIBLE);
+
                     avatarMulti.setVisibility(View.GONE);
+
                 } else {
                     Participant leftParticipant = null;
                     Participant rightParticipant = null;

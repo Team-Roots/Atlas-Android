@@ -37,7 +37,7 @@
         android:maxLines="4"
         android:textSize="@dimen/atlas_text_size_general"
         android:background="@drawable/atlas_ctl_edit_text"
-        android:hint="Hi there! ..."
+        android:hint="What's on your mind?"
         android:minHeight="48dp"
         />
     
