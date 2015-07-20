@@ -29,11 +29,13 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AdapterView.OnItemLongClickListener;
-import android.widget.BaseAdapter;
 import android.widget.FrameLayout;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.daimajia.swipe.SwipeLayout;
+import com.daimajia.swipe.adapters.BaseSwipeAdapter;
 import com.layer.atlas.Atlas.Participant;
 import com.layer.atlas.Atlas.Tools;
 import com.layer.sdk.LayerClient;
@@ -66,7 +68,7 @@ public class AtlasConversationsList extends FrameLayout implements LayerChangeEv
     private static final boolean debug = false;
 
     private ListView conversationsList;
-    private BaseAdapter conversationsAdapter;
+    private AtlasBaseSwipeAdapter conversationsAdapter;
 
     private ArrayList<Conversation> conversations = new ArrayList<Conversation>();
     
@@ -93,7 +95,7 @@ public class AtlasConversationsList extends FrameLayout implements LayerChangeEv
     private int dateTextColor;
     private int avatarTextColor;
     private int avatarBackgroundColor;
-    
+
     // date 
     private final DateFormat dateFormat;
     private final DateFormat timeFormat;
@@ -114,138 +116,39 @@ public class AtlasConversationsList extends FrameLayout implements LayerChangeEv
         this.dateFormat = android.text.format.DateFormat.getDateFormat(context);
         this.timeFormat = android.text.format.DateFormat.getTimeFormat(context);
     }
+    public ArrayList<Conversation> getConversations(){
+        return conversations;
+    }
+    public AtlasBaseSwipeAdapter getAdapter(){
+        return conversationsAdapter;
+    }
 
     public void init(final LayerClient layerClient, final Atlas.ParticipantProvider participantProvider) {
         if (layerClient == null) throw new IllegalArgumentException("LayerClient cannot be null");
         if (participantProvider == null) throw new IllegalArgumentException("ParticipantProvider cannot be null");
         if (conversationsList != null) throw new IllegalStateException("AtlasConversationList is already initialized!");
-        
+
         this.layerClient = layerClient;
-        
+
         // inflate children:
         LayoutInflater.from(getContext()).inflate(R.layout.atlas_conversations_list, this);
-        
+
         this.conversationsList = (ListView) findViewById(R.id.atlas_conversations_view);
-        this.conversationsList.setAdapter(conversationsAdapter = new BaseAdapter() {
-            
-            public View getView(int position, View convertView, ViewGroup parent) {
-                if (convertView == null) {
-                    convertView = LayoutInflater.from(parent.getContext()).inflate(R.layout.atlas_view_conversations_list_convert, parent, false);
-                }
-                
-                Uri convId = conversations.get(position).getId();
-                Conversation conv = layerClient.getConversation(convId);
-                
-                ArrayList<String> allButMe = new ArrayList<String>(conv.getParticipants());
-                allButMe.remove(layerClient.getAuthenticatedUserId());
-                
-                TextView textTitle = (TextView) convertView.findViewById(R.id.atlas_conversation_view_convert_participant);
-                String conversationTitle = Atlas.getTitle(conv, participantProvider, layerClient.getAuthenticatedUserId());
-                textTitle.setText(conversationTitle);
-                
-                // avatar icons... 
-                TextView textInitials = (TextView) convertView.findViewById(R.id.atlas_view_conversations_list_convert_avatar_single_text);
-                View avatarSingle = convertView.findViewById(R.id.atlas_view_conversations_list_convert_avatar_single);
-                View avatarMulti = convertView.findViewById(R.id.atlas_view_conversations_list_convert_avatar_multi);
-                if (allButMe.size() < 2) {
-                    String conterpartyUserId = allButMe.get(0);
-                    Atlas.Participant participant = participantProvider.getParticipant(conterpartyUserId);
-                    textInitials.setText(participant == null ? null : Atlas.getInitials(participant));
-                    textInitials.setTextColor(avatarTextColor);
-                    ((GradientDrawable) textInitials.getBackground()).setColor(avatarBackgroundColor);
-                    avatarSingle.setVisibility(View.VISIBLE);
+        conversationsAdapter = new AtlasBaseSwipeAdapter(participantProvider);
+        this.conversationsList.setAdapter(conversationsAdapter);
 
-                    avatarMulti.setVisibility(View.GONE);
 
-                } else {
-                    Participant leftParticipant = null;
-                    Participant rightParticipant = null;
-                    for (Iterator<String> itUserId = allButMe.iterator(); itUserId.hasNext();) {
-                        String userId = itUserId.next();
-                        Participant p = participantProvider.getParticipant(userId);
-                        if (p == null) continue;
-                        
-                        if (leftParticipant == null) {
-                            leftParticipant = p;
-                        } else {
-                            rightParticipant = p;
-                            break;
-                        }
-                    }
-                    
-                    TextView textInitialsLeft = (TextView) convertView.findViewById(R.id.atlas_view_conversations_list_convert_avatar_multi_left);
-                    textInitialsLeft.setText(leftParticipant == null ? "?" : Atlas.getInitials(leftParticipant));
-                    textInitialsLeft.setTextColor(avatarTextColor);
-                    ((GradientDrawable) textInitialsLeft.getBackground()).setColor(avatarBackgroundColor);
-                    
-                    TextView textInitialsRight = (TextView) convertView.findViewById(R.id.atlas_view_conversations_list_convert_avatar_multi_right);
-                    textInitialsRight.setText(rightParticipant == null ? "?" : Atlas.getInitials(rightParticipant));
-                    textInitialsRight.setTextColor(avatarTextColor);
-                    ((GradientDrawable) textInitialsRight.getBackground()).setColor(avatarBackgroundColor);
-                    
-                    avatarSingle.setVisibility(View.GONE);
-                    avatarMulti.setVisibility(View.VISIBLE);
-                }
-                
-                TextView textLastMessage = (TextView) convertView.findViewById(R.id.atlas_conversation_view_last_message);
-                TextView timeView = (TextView) convertView.findViewById(R.id.atlas_conversation_view_convert_time);
-                if (conv.getLastMessage() != null ) {
-                    Message last = conv.getLastMessage();
-                    String lastMessageText = Atlas.Tools.toString(last);
-                    
-                    textLastMessage.setText(lastMessageText);
-                    
-                    Date sentAt = last.getSentAt();
-                    if (sentAt == null) timeView.setText("...");
-                    else                timeView.setText(formatTime(sentAt));
-
-                    String userId = last.getSender().getUserId();                   // could be null for system messages 
-                    String myId = layerClient.getAuthenticatedUserId();
-                    if ((userId != null) && !userId.equals(myId) && last.getRecipientStatus(myId) != RecipientStatus.READ) {
-                        textTitle.setTextColor(titleUnreadTextColor);
-                        textTitle.setTypeface(titleUnreadTextTypeface, titleUnreadTextStyle);
-                        textLastMessage.setTypeface(subtitleUnreadTextTypeface, subtitleUnreadTextStyle);
-                        textLastMessage.setTextColor(subtitleUnreadTextColor);
-                        convertView.setBackgroundColor(cellUnreadBackgroundColor);
-                    } else {
-                        textTitle.setTextColor(titleTextColor);
-                        textTitle.setTypeface(titleTextTypeface, titleTextStyle);
-                        textLastMessage.setTypeface(subtitleTextTypeface, subtitleTextStyle);
-                        textLastMessage.setTextColor(subtitleTextColor);
-                        convertView.setBackgroundColor(cellBackgroundColor);
-                    }
-                } else {
-                    timeView.setText("...");
-                    textLastMessage.setText("");
-                    textTitle.setTextColor(titleTextColor);
-                    textTitle.setTypeface(titleTextTypeface, titleTextStyle);
-                    textLastMessage.setTypeface(subtitleTextTypeface, subtitleTextStyle);
-                    textLastMessage.setTextColor(subtitleTextColor);
-                    convertView.setBackgroundColor(cellBackgroundColor);
-                }
-                timeView.setTextColor(dateTextColor);
-                return convertView;
-            }
-            public long getItemId(int position) {
-                return position;
-            }
-            public Object getItem(int position) {
-                return conversations.get(position);
-            }
-            public int getCount() {
-                return conversations.size();
-            }
-        });
-        
         conversationsList.setOnItemClickListener(new OnItemClickListener() {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Conversation conv = conversations.get(position);
+
                 if (clickListener != null) clickListener.onItemClick(conv);
             }
         });
         conversationsList.setOnItemLongClickListener(new OnItemLongClickListener() {
             public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
                 Conversation conv = conversations.get(position);
+                conversationsAdapter.openItem(position);
                 if (longClickListener != null) longClickListener.onItemLongClick(conv);
                 return true;
             }
@@ -269,7 +172,7 @@ public class AtlasConversationsList extends FrameLayout implements LayerChangeEv
 
         updateValues();
     }
-    
+
     public void updateValues() {
         if (conversationsAdapter == null) {                 // never initialized
             return;
@@ -407,5 +310,138 @@ public class AtlasConversationsList extends FrameLayout implements LayerChangeEv
     
     public interface ConversationLongClickListener {
         void onItemLongClick(Conversation conversation);
+    }
+
+
+    public class AtlasBaseSwipeAdapter extends BaseSwipeAdapter {
+        SwipeLayout swipeLayout;
+        Atlas.ParticipantProvider participantProvider;
+        public AtlasBaseSwipeAdapter(Atlas.ParticipantProvider provider){
+            participantProvider=provider;
+        }
+        public int getSwipeLayoutResourceId(int position) {
+            return R.id.swipeconversationlistitem;
+        }
+        public View generateView(int position, ViewGroup parent) {
+            return LayoutInflater.from(parent.getContext()).inflate(R.layout.atlas_view_conversations_list_convert, parent, false);
+        }
+        public void fillValues(final int position, View convertView) {
+
+            Uri convId = conversations.get(position).getId();
+            Conversation conv = layerClient.getConversation(convId);
+
+            ArrayList<String> allButMe = new ArrayList<String>(conv.getParticipants());
+            allButMe.remove(layerClient.getAuthenticatedUserId());
+
+            TextView textTitle = (TextView) convertView.findViewById(R.id.atlas_conversation_view_convert_participant);
+            String conversationTitle = Atlas.getTitle(conv, participantProvider, layerClient.getAuthenticatedUserId());
+            textTitle.setText(conversationTitle);
+
+            // avatar icons...
+            TextView textInitials = (TextView) convertView.findViewById(R.id.atlas_view_conversations_list_convert_avatar_single_text);
+            View avatarSingle = convertView.findViewById(R.id.atlas_view_conversations_list_convert_avatar_single);
+            View avatarMulti = convertView.findViewById(R.id.atlas_view_conversations_list_convert_avatar_multi);
+            if (allButMe.size() < 2) {
+                String conterpartyUserId = allButMe.get(0);
+                Atlas.Participant participant = participantProvider.getParticipant(conterpartyUserId);
+                textInitials.setText(participant == null ? null : Atlas.getInitials(participant));
+                textInitials.setTextColor(avatarTextColor);
+                ((GradientDrawable) textInitials.getBackground()).setColor(avatarBackgroundColor);
+                avatarSingle.setVisibility(View.VISIBLE);
+                avatarMulti.setVisibility(View.GONE);
+            } else {
+                Participant leftParticipant = null;
+                Participant rightParticipant = null;
+                for (Iterator<String> itUserId = allButMe.iterator(); itUserId.hasNext();) {
+                    String userId = itUserId.next();
+                    Participant p = participantProvider.getParticipant(userId);
+                    if (p == null) continue;
+
+                    if (leftParticipant == null) {
+                        leftParticipant = p;
+                    } else {
+                        rightParticipant = p;
+                        break;
+                    }
+                }
+
+                TextView textInitialsLeft = (TextView) convertView.findViewById(R.id.atlas_view_conversations_list_convert_avatar_multi_left);
+                textInitialsLeft.setText(leftParticipant == null ? "?" : Atlas.getInitials(leftParticipant));
+                textInitialsLeft.setTextColor(avatarTextColor);
+                ((GradientDrawable) textInitialsLeft.getBackground()).setColor(avatarBackgroundColor);
+
+                TextView textInitialsRight = (TextView) convertView.findViewById(R.id.atlas_view_conversations_list_convert_avatar_multi_right);
+                textInitialsRight.setText(rightParticipant == null ? "?" : Atlas.getInitials(rightParticipant));
+                textInitialsRight.setTextColor(avatarTextColor);
+                ((GradientDrawable) textInitialsRight.getBackground()).setColor(avatarBackgroundColor);
+
+                avatarSingle.setVisibility(View.GONE);
+                avatarMulti.setVisibility(View.VISIBLE);
+            }
+
+            TextView textLastMessage = (TextView) convertView.findViewById(R.id.atlas_conversation_view_last_message);
+            TextView timeView = (TextView) convertView.findViewById(R.id.atlas_conversation_view_convert_time);
+            if (conv.getLastMessage() != null ) {
+                Message last = conv.getLastMessage();
+                String lastMessageText = Atlas.Tools.toString(last);
+
+                textLastMessage.setText(lastMessageText);
+
+                Date sentAt = last.getSentAt();
+                if (sentAt == null) timeView.setText("...");
+                else                timeView.setText(formatTime(sentAt));
+
+                String userId = last.getSender().getUserId();                   // could be null for system messages
+                String myId = layerClient.getAuthenticatedUserId();
+                if ((userId != null) && !userId.equals(myId) && last.getRecipientStatus(myId) != RecipientStatus.READ) {
+                    textTitle.setTextColor(titleUnreadTextColor);
+                    textTitle.setTypeface(titleUnreadTextTypeface, titleUnreadTextStyle);
+                    textLastMessage.setTypeface(subtitleUnreadTextTypeface, subtitleUnreadTextStyle);
+                    textLastMessage.setTextColor(subtitleUnreadTextColor);
+                    convertView.setBackgroundColor(cellUnreadBackgroundColor);
+                } else {
+                    textTitle.setTextColor(titleTextColor);
+                    textTitle.setTypeface(titleTextTypeface, titleTextStyle);
+                    textLastMessage.setTypeface(subtitleTextTypeface, subtitleTextStyle);
+                    textLastMessage.setTextColor(subtitleTextColor);
+                    convertView.setBackgroundColor(cellBackgroundColor);
+                }
+            } else {
+                timeView.setText("...");
+                textLastMessage.setText("");
+                textTitle.setTextColor(titleTextColor);
+                textTitle.setTypeface(titleTextTypeface, titleTextStyle);
+                textLastMessage.setTypeface(subtitleTextTypeface, subtitleTextStyle);
+                textLastMessage.setTextColor(subtitleTextColor);
+                convertView.setBackgroundColor(cellBackgroundColor);
+            }
+            timeView.setTextColor(dateTextColor);
+            swipeLayout =  (SwipeLayout)convertView.findViewById(R.id.swipeconversationlistitem);
+            swipeLayout.setShowMode(SwipeLayout.ShowMode.PullOut);
+            swipeLayout.addDrag(SwipeLayout.DragEdge.Left, convertView.findViewById(R.id.bottom_wrapper));
+            ImageView trash= (ImageView)convertView.findViewById(R.id.trash);
+            trash.setOnClickListener(new OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    layerClient.deleteConversation((Conversation)getItem(position), LayerClient.DeletionMode.ALL_PARTICIPANTS);
+                    conversations.remove(getItem(position));
+                    swipeLayout.close(false);
+                    notifyDataSetChanged();
+
+                }
+            });
+
+
+        }
+        public long getItemId(int position) {
+            return position;
+        }
+        public Object getItem(int position) {
+            return conversations.get(position);
+        }
+        public int getCount() {
+            return conversations.size();
+        }
+
     }
 }

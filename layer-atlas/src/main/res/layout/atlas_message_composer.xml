@@ -31,8 +31,8 @@
     
     <EditText
         android:id="@+id/atlas_message_composer_text"
-        android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:layout_width="0dp"
         android:layout_weight="1"
         android:maxLines="4"
         android:textSize="@dimen/atlas_text_size_general"

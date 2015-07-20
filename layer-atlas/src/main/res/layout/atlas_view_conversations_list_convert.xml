@@ -13,8 +13,33 @@
      See the License for the specific language governing permissions and
      limitations under the License.    
 -->
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+
+
+<com.daimajia.swipe.SwipeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent" android:layout_height="72dp" android:id="@+id/swipeconversationlistitem">
+    <LinearLayout
+        android:background="#66ddff00"
+        android:id="@+id/bottom_wrapper"
+        android:layout_width="72dp"
+        android:weightSum="1"
+        android:orientation="horizontal"
+        android:layout_height="match_parent">
+        <ImageView
+            android:id="@+id/trash"
+            android:src="@drawable/trash"
+            android:layout_width="72dp"
+            android:background="@drawable/red"
+            android:paddingLeft="25dp"
+            android:paddingRight="25dp"
+            android:layout_height="match_parent" />
+
+
+        <!--What you want to show-->
+    </LinearLayout>
+
+<LinearLayout
+
     android:id="@+id/atlas_view_conversations_list_convert"
     android:layout_width="match_parent"
     android:layout_height="72dp" 
@@ -50,6 +75,8 @@
                 android:textSize="@dimen/atlas_text_size_smaller"
                 android:text="TS"
                 />
+            <!--gray separator at the bottom-->
+
         </FrameLayout>
         
         <!-- multi-person avatar -->
@@ -96,9 +123,16 @@
                 android:textSize="@dimen/atlas_text_size_tiny"
                 android:text="AB"
                 />
+            <!--gray separator at the bottom-->
+
         </FrameLayout>
-        
-            
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_gravity="bottom"
+            android:background="@color/atlas_delimeter_gray"
+            />
     </FrameLayout>
     
     <!-- right content part -->
@@ -122,6 +156,7 @@
 		android:layout_height="wrap_content"
 		android:layout_gravity="center"
 		android:paddingRight="16dp"
+        android:id="@+id/conversationlistitem"
 		>
 		
 		<!-- Tomaz and time -->
@@ -173,3 +208,4 @@
 	</FrameLayout>
     
 </LinearLayout>
+</com.daimajia.swipe.SwipeLayout>

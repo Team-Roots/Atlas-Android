@@ -15,6 +15,14 @@
  */
 package com.layer.atlas;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.TreeSet;
+
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Typeface;
@@ -38,14 +46,6 @@ import android.widget.TextView;
 
 import com.layer.atlas.Atlas.Participant;
 import com.layer.atlas.Atlas.ParticipantProvider;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.TreeSet;
 
 /**
  * @author Oleg Orlov
