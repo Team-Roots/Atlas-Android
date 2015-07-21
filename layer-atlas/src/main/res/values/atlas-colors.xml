@@ -14,6 +14,10 @@
      limitations under the License.    
 -->
 <resources>
+    <!--for trash option-->
+    <color name="red">#FF3B00</color>
+    <color name="red_press">#990000</color>
+
 
     <color name="atlas_delimeter_gray">#18000000</color>
     <color name="atlas_shape_avatar_gray">#14000000</color>

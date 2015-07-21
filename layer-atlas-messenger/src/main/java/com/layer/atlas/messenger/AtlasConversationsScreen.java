@@ -34,8 +34,6 @@ import com.layer.atlas.AtlasConversationsList.ConversationClickListener;
 import com.layer.atlas.AtlasConversationsList.ConversationLongClickListener;
 import com.layer.sdk.messaging.Conversation;
 
-import java.util.UUID;
-
 /**
  * @author Oleg Orlov
  * @since 14 Apr 2015
@@ -117,7 +115,6 @@ public class AtlasConversationsScreen extends Activity {
         }
         if (requestCode == IntentIntegrator.REQUEST_CODE && resultCode == RESULT_OK) {
             String qrCodeAppId = IntentIntegrator.parseActivityResult(requestCode, resultCode, data).getContents();
-            if (!qrCodeAppId.startsWith("layer:///")) qrCodeAppId = "layer:///apps/staging/" + UUID.fromString(qrCodeAppId).toString();
             Log.w(TAG, "Captured App ID: " + qrCodeAppId);
             try {
                 app.initLayerClient(qrCodeAppId);

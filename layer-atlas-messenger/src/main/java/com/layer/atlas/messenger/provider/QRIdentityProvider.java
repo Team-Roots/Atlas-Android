@@ -30,7 +30,6 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 /**
  * Created by steven on 5/24/15.
@@ -53,13 +52,10 @@ public class QRIdentityProvider extends IdentityProvider {
             StringEntity entity = new StringEntity(rootObject.toString(), "UTF-8");
             entity.setContentType("application/json");
 
-            String appIdString = mAppIdCallback.getAppId();
-            String uuidString = UUID.fromString(appIdString.startsWith("layer:///")? appIdString.substring(appIdString.lastIndexOf("/") + 1) : appIdString).toString();
-
-            HttpPost post = new HttpPost("https://layer-identity-provider.herokuapp.com/apps/" + uuidString + "/atlas_identities");
+            HttpPost post = new HttpPost("https://layer-identity-provider.herokuapp.com/apps/" + mAppIdCallback.getAppId() + "/atlas_identities");
             post.setHeader("Content-Type", "application/json");
             post.setHeader("Accept", "application/json");
-            post.setHeader("X_LAYER_APP_ID", uuidString);
+            post.setHeader("X_LAYER_APP_ID", mAppIdCallback.getAppId());
             post.setEntity(entity);
             HttpResponse response = (new DefaultHttpClient()).execute(post);
             if (HttpStatus.SC_OK != response.getStatusLine().getStatusCode() && HttpStatus.SC_CREATED != response.getStatusLine().getStatusCode()) {
