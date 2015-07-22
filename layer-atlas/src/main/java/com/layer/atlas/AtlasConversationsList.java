@@ -355,9 +355,13 @@ public class AtlasConversationsList extends FrameLayout implements LayerChangeEv
                 textInitials.setTextColor(avatarTextColor);
                 ((GradientDrawable) textInitials.getBackground()).setColor(avatarBackgroundColor);
                 textInitials.setVisibility(View.GONE);
-                Map<String, String> counselor=(Map<String, String>)conv.getMetadata().get("counselor");
 
-                new LoadImage(imageView).execute(counselor.get("avatarString"));
+
+                if(conv.getMetadata().get("counselor")!=null) {
+                    Map<String, String> counselor = (Map<String, String>) conv.getMetadata().get("counselor");
+                    new LoadImage(imageView).execute(counselor.get("avatarString"));
+                    textTitle.setText(counselor.get("name"));
+                }
                 avatarSingle.setVisibility(View.VISIBLE);
                 avatarMulti.setVisibility(View.GONE);
 
