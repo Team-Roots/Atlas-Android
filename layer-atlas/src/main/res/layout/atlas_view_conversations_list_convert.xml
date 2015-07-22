@@ -55,19 +55,22 @@
         <!-- single person avatar -->
         <FrameLayout 
             android:id="@+id/atlas_view_conversations_list_convert_avatar_single"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
             android:layout_gravity="center"
             >
-            <View 
-                android:layout_width="40dp"
-                android:layout_height="40dp"
+            <!--original image view size was 40 with FrameLayout 40 and TextView 38-->
+            <ImageView
+                android:id="@+id/atlas_view_conversations_list_convert_avatar_single_image"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:scaleType="centerCrop"
                 android:background="@drawable/atlas_shape_circle_white"
                 />
             <TextView 
                 android:id="@+id/atlas_view_conversations_list_convert_avatar_single_text"
-                android:layout_width="38dp"
-                android:layout_height="38dp"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
                 android:layout_marginLeft="1dp"
                 android:layout_marginTop="1dp"
                 android:background="@drawable/atlas_shape_circle_gray"
@@ -143,10 +146,10 @@
 		>
     	
 		<!-- delimiter -->
-        <View 
+        <View
         	android:layout_width="match_parent" 
         	android:layout_height="1dp"
-        	android:layout_gravity="bottom" 
+        	android:layout_gravity="bottom"
         	android:background="@color/atlas_delimeter_gray"
         	/>
 		

@@ -17,10 +17,13 @@ package com.layer.atlas;
 
 import android.content.Context;
 import android.content.res.TypedArray;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.graphics.drawable.GradientDrawable;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -49,6 +52,8 @@ import com.layer.sdk.messaging.LayerObject;
 import com.layer.sdk.messaging.Message;
 import com.layer.sdk.messaging.Message.RecipientStatus;
 
+import java.io.InputStream;
+import java.net.URL;
 import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -57,6 +62,7 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author Oleg Orlov
@@ -341,14 +347,20 @@ public class AtlasConversationsList extends FrameLayout implements LayerChangeEv
             TextView textInitials = (TextView) convertView.findViewById(R.id.atlas_view_conversations_list_convert_avatar_single_text);
             View avatarSingle = convertView.findViewById(R.id.atlas_view_conversations_list_convert_avatar_single);
             View avatarMulti = convertView.findViewById(R.id.atlas_view_conversations_list_convert_avatar_multi);
+            ImageView imageView = (ImageView)convertView.findViewById(R.id.atlas_view_conversations_list_convert_avatar_single_image);
             if (allButMe.size() < 2) {
                 String conterpartyUserId = allButMe.get(0);
                 Atlas.Participant participant = participantProvider.getParticipant(conterpartyUserId);
                 textInitials.setText(participant == null ? null : Atlas.getInitials(participant));
                 textInitials.setTextColor(avatarTextColor);
                 ((GradientDrawable) textInitials.getBackground()).setColor(avatarBackgroundColor);
+                textInitials.setVisibility(View.GONE);
+                Map<String, String> counselor=(Map<String, String>)conv.getMetadata().get("counselor");
+
+                new LoadImage(imageView).execute(counselor.get("avatarString"));
                 avatarSingle.setVisibility(View.VISIBLE);
                 avatarMulti.setVisibility(View.GONE);
+
             } else {
                 Participant leftParticipant = null;
                 Participant rightParticipant = null;
@@ -441,6 +453,42 @@ public class AtlasConversationsList extends FrameLayout implements LayerChangeEv
         }
         public int getCount() {
             return conversations.size();
+        }
+
+        private class LoadImage extends AsyncTask<String, String, Bitmap> {
+            ImageView imageView=null;
+
+            //for passing image View
+            public LoadImage(ImageView imageViewLocal) {
+                super();
+                imageView=imageViewLocal;
+
+            }
+
+            //convert image of link to bitmap
+            protected Bitmap doInBackground(String... args) {
+                Bitmap bitmap=null;
+                try {
+                    bitmap = BitmapFactory.decodeStream((InputStream) new URL(args[0]).getContent());
+
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    Log.d("failed to decode bitmap","failed to decode bitmap");
+                }
+                return bitmap;
+            }
+
+            //set image view to bitmap
+            protected void onPostExecute(Bitmap image ) {
+
+                if(image != null){
+                    RoundImage roundImage=new RoundImage(image);
+                    imageView.setImageDrawable(roundImage);
+
+                }else{
+                    Log.d("failed to set bitmap to image view", "failed to set bitmap to image view");
+                }
+            }
         }
 
     }
