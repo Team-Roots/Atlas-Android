@@ -123,6 +123,12 @@ public class AtlasMessagesList extends FrameLayout implements LayerChangeEventLi
     private int dateTextColor;
     private int avatarTextColor;
     private int avatarBackgroundColor;
+
+
+    //account type 1 is counselor
+    //account type 0 is student
+    //default set to 0
+    private int accountType;
     
     public AtlasMessagesList(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
@@ -139,11 +145,12 @@ public class AtlasMessagesList extends FrameLayout implements LayerChangeEventLi
         this.timeFormat = android.text.format.DateFormat.getTimeFormat(context);
     }
 
-    public void init(final LayerClient layerClient, final Atlas.ParticipantProvider participantProvider) {
+    public void init(final LayerClient layerClient, final Atlas.ParticipantProvider participantProvider, int accountTypeLocal) {
         if (layerClient == null) throw new IllegalArgumentException("LayerClient cannot be null");
         if (participantProvider == null) throw new IllegalArgumentException("ParticipantProvider cannot be null");
         if (messagesList != null) throw new IllegalStateException("AtlasMessagesList is already initialized!");
-        
+
+        accountType=accountTypeLocal;
         this.client = layerClient;
         LayoutInflater.from(getContext()).inflate(R.layout.atlas_messages_list, this);
         
@@ -216,9 +223,13 @@ public class AtlasMessagesList extends FrameLayout implements LayerChangeEventLi
                     String displayText = participant != null ? Atlas.getInitials(participant) : "";
                     textAvatar.setText(displayText);
                     textAvatar.setVisibility(View.INVISIBLE);
-                    Map <String, String> counselor=(Map)(getConversation().getMetadata().get("counselor"));
-                    new LoadImage(imageViewAvatar).execute(counselor.get("avatarString"));
-
+                    if(accountType==0) {
+                        Map<String, String> counselor = (Map) (getConversation().getMetadata().get("counselor"));
+                        new LoadImage(imageViewAvatar).execute(counselor.get("avatarString"));
+                    }else {
+                        Map<String, String> student = (Map) (getConversation().getMetadata().get("student"));
+                        new LoadImage(imageViewAvatar).execute(student.get("avatarString"));
+                    }
                     imageViewAvatar.setVisibility(View.VISIBLE);
 
                 }

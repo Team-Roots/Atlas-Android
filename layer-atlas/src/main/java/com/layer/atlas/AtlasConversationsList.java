@@ -106,6 +106,12 @@ public class AtlasConversationsList extends FrameLayout implements LayerChangeEv
     private final DateFormat dateFormat;
     private final DateFormat timeFormat;
 
+
+    //account type 1 is counselor
+    //account type 0 is student
+    //default set to 0
+    private int accountType;
+
     public AtlasConversationsList(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
         parseStyle(context, attrs, defStyle);
@@ -129,12 +135,14 @@ public class AtlasConversationsList extends FrameLayout implements LayerChangeEv
         return conversationsAdapter;
     }
 
-    public void init(final LayerClient layerClient, final Atlas.ParticipantProvider participantProvider) {
+    public void init(final LayerClient layerClient, final Atlas.ParticipantProvider participantProvider, int accountTypeLocal) {
         if (layerClient == null) throw new IllegalArgumentException("LayerClient cannot be null");
         if (participantProvider == null) throw new IllegalArgumentException("ParticipantProvider cannot be null");
         if (conversationsList != null) throw new IllegalStateException("AtlasConversationList is already initialized!");
 
         this.layerClient = layerClient;
+        accountType = accountTypeLocal;
+
 
         // inflate children:
         LayoutInflater.from(getContext()).inflate(R.layout.atlas_conversations_list, this);
@@ -357,11 +365,16 @@ public class AtlasConversationsList extends FrameLayout implements LayerChangeEv
                 textInitials.setVisibility(View.GONE);
 
 
-                if(conv.getMetadata().get("counselor")!=null) {
+                if(conv.getMetadata().get("counselor")!=null && accountType==0) {
                     Map<String, String> counselor = (Map<String, String>) conv.getMetadata().get("counselor");
                     new LoadImage(imageView).execute(counselor.get("avatarString"));
                     textTitle.setText(counselor.get("name"));
+                } else if (conv.getMetadata().get("student")!=null && accountType==1) {
+                    Map<String, String> student = (Map<String, String>) conv.getMetadata().get("student");
+                    new LoadImage(imageView).execute(student.get("avatarString"));
+                    textTitle.setText(student.get("name"));
                 }
+
                 avatarSingle.setVisibility(View.VISIBLE);
                 avatarMulti.setVisibility(View.GONE);
 
