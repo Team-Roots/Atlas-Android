@@ -74,6 +74,13 @@
             android:layout_marginLeft="8dp"
             android:layout_gravity="bottom"
             >
+            <ImageView
+                android:id="@+id/atlas_view_nessages_convert_avatar_image"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:scaleType="centerCrop"
+                android:background="@drawable/atlas_shape_circle_gray"
+                />
             <TextView 
                 android:id="@+id/atlas_view_messages_convert_initials"
                 android:layout_width="match_parent"

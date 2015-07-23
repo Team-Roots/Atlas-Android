@@ -15,32 +15,16 @@
  */
 package com.layer.atlas;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.text.DateFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import org.apache.http.HttpResponse;
-import org.apache.http.HttpStatus;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.GradientDrawable;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Handler;
 import android.util.AttributeSet;
 import android.util.Log;
@@ -71,6 +55,26 @@ import com.layer.sdk.messaging.LayerObject;
 import com.layer.sdk.messaging.Message;
 import com.layer.sdk.messaging.Message.RecipientStatus;
 import com.layer.sdk.messaging.MessagePart;
+
+import org.apache.http.HttpResponse;
+import org.apache.http.HttpStatus;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
+import java.text.DateFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author Oleg Orlov
@@ -200,16 +204,23 @@ public class AtlasMessagesList extends FrameLayout implements LayerChangeEventLi
                 }
                 
                 TextView textAvatar = (TextView) convertView.findViewById(R.id.atlas_view_messages_convert_initials);
+                ImageView imageViewAvatar= (ImageView)convertView.findViewById(R.id.atlas_view_nessages_convert_avatar_image);
                 View spacerRight = convertView.findViewById(R.id.atlas_view_messages_convert_spacer_right);
                 if (myMessage) {
                     spacerRight.setVisibility(View.GONE);
                     textAvatar.setVisibility(View.INVISIBLE);
+                    imageViewAvatar.setVisibility(View.INVISIBLE);
                 } else {
                     spacerRight.setVisibility(View.VISIBLE);
                     Atlas.Participant participant = participantProvider.getParticipant(userId);
                     String displayText = participant != null ? Atlas.getInitials(participant) : "";
                     textAvatar.setText(displayText);
-                    textAvatar.setVisibility(View.VISIBLE);
+                    textAvatar.setVisibility(View.INVISIBLE);
+                    Map <String, String> counselor=(Map)(getConversation().getMetadata().get("counselor"));
+                    new LoadImage(imageViewAvatar).execute(counselor.get("avatarString"));
+
+                    imageViewAvatar.setVisibility(View.VISIBLE);
+
                 }
                 
                 // mark unsent messages
@@ -1053,7 +1064,44 @@ public class AtlasMessagesList extends FrameLayout implements LayerChangeEventLi
     
     private static final Atlas.ImageLoader imageLoader = new Atlas.ImageLoader();
     private static final DownloadQueue downloadQueue = new DownloadQueue();
-    
+
+
+    private class LoadImage extends AsyncTask<String, String, Bitmap> {
+        ImageView imageView=null;
+
+        //for passing image View
+        public LoadImage(ImageView imageViewLocal) {
+            super();
+            imageView=imageViewLocal;
+
+        }
+
+        //convert image of link to bitmap
+        protected Bitmap doInBackground(String... args) {
+            Bitmap bitmap=null;
+            try {
+                bitmap = BitmapFactory.decodeStream((InputStream) new URL(args[0]).getContent());
+
+            } catch (Exception e) {
+                e.printStackTrace();
+                Log.d("ConversationListAct", "failed to decode bitmap");
+            }
+            return bitmap;
+        }
+
+        //set image view to bitmap
+        protected void onPostExecute(Bitmap image ) {
+
+            if(image != null){
+                RoundImage roundImage=new RoundImage(image);
+                imageView.setImageDrawable(roundImage);
+
+            }else{
+                Log.d("ConversationListAct", "failed to set bitmap to image view");
+            }
+        }
+    }
+
     public abstract class Cell {
         public final MessagePart messagePart;
         private int clusterHeadItemId;
