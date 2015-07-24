@@ -15,8 +15,6 @@
  */
 package com.layer.atlas;
 
-import java.util.ArrayList;
-
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Color;
@@ -42,6 +40,8 @@ import com.layer.sdk.listeners.LayerTypingIndicatorListener;
 import com.layer.sdk.messaging.Conversation;
 import com.layer.sdk.messaging.Message;
 import com.layer.sdk.messaging.MessagePart;
+
+import java.util.ArrayList;
 
 /**
  * @author Oleg Orlov

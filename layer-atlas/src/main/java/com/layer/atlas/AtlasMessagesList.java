@@ -224,11 +224,9 @@ public class AtlasMessagesList extends FrameLayout implements LayerChangeEventLi
                     textAvatar.setText(displayText);
                     textAvatar.setVisibility(View.INVISIBLE);
                     if(accountType==0) {
-                        Map<String, String> counselor = (Map) (getConversation().getMetadata().get("counselor"));
-                        new LoadImage(imageViewAvatar).execute(counselor.get("avatarString"));
+                        new LoadImage(imageViewAvatar).execute((String)getConversation().getMetadata().get("counselor.avatarString"));
                     }else {
-                        Map<String, String> student = (Map) (getConversation().getMetadata().get("student"));
-                        new LoadImage(imageViewAvatar).execute(student.get("avatarString"));
+                        new LoadImage(imageViewAvatar).execute((String)getConversation().getMetadata().get("student.avatarString"));
                     }
                     imageViewAvatar.setVisibility(View.VISIBLE);
 

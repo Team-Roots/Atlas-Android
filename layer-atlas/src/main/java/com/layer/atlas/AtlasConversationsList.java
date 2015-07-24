@@ -62,14 +62,19 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
+import java.util.Random;
 
 /**
  * @author Oleg Orlov
  * @since 14 May 2015
  */
 public class AtlasConversationsList extends FrameLayout implements LayerChangeEventListener.MainThread {
-    
+
+
+    private String[] treenameA = {"African","Algerian","American","Annual","Appalachian","Ash-leaved","Asian","Baby","Bank","Bastard","Bear","Bearberry","Belle","Bermuda","Big ","Bird\'s","Bitter","Black","Black-eyed","Black-weed","Blue","Blunt-leaved","Bolean","Boston","Brilliant","Bristly","Brown","Brown-eyed","Buffalo","Bulbous","Bull","Bur ","Butterfly","Cabinet","Cane","Canoe","Canyon","Cart","Champion","Chigger","Chrysanthemum","Climbing","Clumpfoot","Coast","Colic","Common","Coyote","Creek","Creeping","Crow\'s","Cursed","Cutleaf","Damask","Dame\'s","Deadly","Deciduous","Devil\'s","Dooryard","Downy","Duck","Dwarf","Dyer\'s","Early","Earth","Eastern","Evergreen","Extinguisher","False","Fern-leaf","Fernleaf","Field","Flowering","Garden","Giant","Gloriosa","Golden","Goodding","Goose","Gray","Great","Greater","Green","Green-headed","Hairy","Hard","Hare\'s","Hay ","Healing","Hedge","Hen ","Henbit","Herb","Hispid","Honey","Horse","Horsetail","Hound\'s","Island","Kenaf","Kimberly","Lamb\'s","Land","Leatherleaf","Love","Low ","Mango","Meadow","Milk","Milky","Mirbeck\'s","Moose","Mosquito","Mossycup","Mountain","Multiflora","Nature\'s","New ","Night","Nodding","Northern ","Orange-root","Osage","Pale","Paper","Pedunculate","Penny","Pepper","Perennial","Petty","Pigeon","Pin","Pink","Pistachio","Plane","Pleurisy","Pocan","Poison","Poke","Polecat","Poor","Poorland","Prairie","Prickly","Pudina","Purple","Purple-flowered","Queen","Queen\'s","Radical","Rambler","Red ","Rheumatism","Rhubarb","Ribwort","River","Rock","Rogue\'s","Roman","Roundleaf","Rum ","Running ","Sand","Sauce-alone","Scarlet","Scotch","Scrambled","Screwbean","Scrub","Scurvy","Sessile","Sharp-fringed","Silky","Silver","Silverleaf","Skunk","Small-flowered","Sneezeweed","Sneezewort","Soft","Soldier\'s","Spanish","Speckled","Spice","Spiny","Spiny-leaved","Spotted","Spring","Squaw","Stag","Striped","Summer","Sunflower","Swamp","Sweet","Swine","Sword","Tall","Tassel ","Thin-leaved","Three-leaved","Trailing","Traveller\'s","True","Upland","Valley","Vanilla","Virgin\'s","Virginia","Wall","Water","Way ","Wayside","Weeping","Western","Whiskey","White","White-root","Whorled","Wild","Winter","Woody","Woolly","Wound","Yellow","Yellowbark"};
+    private String[] treenameB = {"Aconite","Alder","Almond","Ambrosia","Anne\'s Lace","Annie","Apple","Apricot","Arfaj","Arrowwood","Ash","Azolla","Bamboo","Banana Tree","Barbara","Bay","Bean","Bearberry","Beech","Berry","Betty","Bindweed","Birch","Bite","Bittercress","Bittersweet","Bitterweed","Black Cherry","Black Oak","Blackberry","Blackhaw","Blade","Bloom","Blueberry","Boabab","Bow-wood","Bower","Box","Boxelder","Boxwood","Brier","Brittlebush","Broadleaf","Buckeye","Bull\'s Eye","Bush","Buttons","Cabbage","Cane","Cap","Carrot","Cherry","Chestnut","Cinnamon","Clove","Clover","Coakum","Coconut","Coffee","Collard","Colwort","Coneflower","Corn","Cornel","Corydalis","Cotton","Cress","Crowfoot","Cucumber","Daisy","Darning Needle","Deadnettle","Dewberry","Dindle","Dogbane","Dogwood","Duscle","Eucalyptus","Eytelia","Fairymoss","Fellenwort","Felonwood","Felonwort","Fennel","Fern","Fever Weed","Feverbush","Feverfew","Fieldcress","Fig","Flax","Flower","Fluxroot","Foot","Fumewort","Gall","Gallberry","Garget","Garlic","Gilliflower","Goldenglow","Grapefruit","Grapevine","Grass","Groundberry","Gutweed","Hair","Haldi","Harlequin","Hedge","Hellebore","Hemp","Hogweed","Holly","Hops","Horse Nettle","Houseleek","Huckleberry","Ink Plant","Inkberry","Itchweed","Ivy","Jack-in-the-Bush","Jalap","Jerusalem","Joy","Juniper","Keek","Kinnikinnik","Kousa","Kudzu","Laceflower","Laurel","Lavender","Leek","Lemon","Lettuce","Lilac","Mahogany","Maize","Man\'s Foot","Man\'s Mustard","Maple","Mesquite","Milfoil","Milkweed","Mistake","Moosewood","Morel","Moss","Mulberry","Mustard","Neem","Nettle","Nightshade","Nosebleed","Oak","Olive","Onion","Orange","Orange-root","Osage","Osier","Paintbrush","Parsley","Parsnip","Pea","Peach","Peanut","Pear","Pellitory","Pine","Pineapple","Pistachio","Plague","Plant","Plantain","Poisonberry","Poisonflower","Poke","Pokeroot","Pokeweed","Polkweed","Polypody","Poplar","Poppy","Possumhaw","Posy","Potato","Pudina","Quercitron","Ragweed","Rantipole","Rapeseed","Raspberry","Redbrush","Redbud","Redweed","Retten","Rhubarb","Ribwort","Roadweed","Rock Fern","Rocket","Root","Rose","Rosemary","Rye","Saffron","Sanguinary","Scoke","Serviceberry","Shadblow","Shadbush","Silkweed","Skunkweed","Snakeberry","Sneezeweed","Sneezewort","Snowdrop","Sorrel","Sow Thistle","Spanish Oak","Speedwell","Spoolwood","Stammerwort","Stickweed","Strawberry","Sugarcane","Sugarplum","Sunflower","Susan","Swallow-wort","Swinies","Sycamore","Tansy","Tassel","Tea","Thimbleberry","Thimbleweed","Thistle","Thousand-leaf","Thousand-seal","Thyme","Tickleweed","Tobacco","Toes","Tomato","Tongue","Toothwort","Touch-me-not","Track Plant","Tree","Trillium","Tulip","Tulsi","Viburnum","Vine","Violet","Violet Nightshade","Virgin\'s Bower","Wake Robin","Walnut","Waybread","Weed","Weeping Birch","Wheat","White-root","Wild Rose","Willow","Windroot","Wineberry","Winterberry","Wintercress","Woodbine","Wormwood","Woundwort","Yarrow","Yellowcress","Yellowwood","Zedoary","Zinnia"};
+
+
     private static final String TAG = AtlasConversationsList.class.getSimpleName();
     private static final boolean debug = false;
 
@@ -77,9 +82,9 @@ public class AtlasConversationsList extends FrameLayout implements LayerChangeEv
     private AtlasBaseSwipeAdapter conversationsAdapter;
 
     private ArrayList<Conversation> conversations = new ArrayList<Conversation>();
-    
+
     private LayerClient layerClient;
-    
+
     private ConversationClickListener clickListener;
     private ConversationLongClickListener longClickListener;
     
@@ -230,6 +235,18 @@ public class AtlasConversationsList extends FrameLayout implements LayerChangeEv
             });
         }
     }
+    public String generateRandomTreeName(){
+        Random randomGenerator=new Random();
+        String randomName="";
+        ArrayList<String> studentMetaDataNames=new ArrayList<String>();
+        for(Conversation conv: conversations) {
+            studentMetaDataNames.add((String)conv.getMetadata().get("student.name"));
+        }
+        while(studentMetaDataNames.contains(randomName)) {
+            randomName = treenameA[randomGenerator.nextInt(treenameA.length)] + " " + treenameB[randomGenerator.nextInt(treenameB.length)];
+        }
+        return randomName;
+    }
 
     private void parseStyle(Context context, AttributeSet attrs, int defStyle) {
         TypedArray ta = context.getTheme().obtainStyledAttributes(attrs, R.styleable.AtlasConversationList, R.attr.AtlasConversationList, defStyle);
@@ -366,13 +383,16 @@ public class AtlasConversationsList extends FrameLayout implements LayerChangeEv
 
 
                 if(conv.getMetadata().get("counselor")!=null && accountType==0) {
-                    Map<String, String> counselor = (Map<String, String>) conv.getMetadata().get("counselor");
-                    new LoadImage(imageView).execute(counselor.get("avatarString"));
-                    textTitle.setText(counselor.get("name"));
+                    new LoadImage(imageView).execute((String)conv.getMetadata().get("counselor.avatarString"));
+                    textTitle.setText((String)conv.getMetadata().get("counselor.name"));
                 } else if (conv.getMetadata().get("student")!=null && accountType==1) {
-                    Map<String, String> student = (Map<String, String>) conv.getMetadata().get("student");
-                    new LoadImage(imageView).execute(student.get("avatarString"));
-                    textTitle.setText(student.get("name"));
+
+                    if(conv.getMetadata().get("student.name").equals("")){
+                        conv.putMetadataAtKeyPath("student.name",generateRandomTreeName());
+                        Log.d("name set check","name set check"+conv.getMetadata().get("student.name"));
+                    }
+                    new LoadImage(imageView).execute((String)conv.getMetadata().get("student.avatarString"));
+                    textTitle.setText((String)conv.getMetadata().get("student.name"));
                 }
 
                 avatarSingle.setVisibility(View.VISIBLE);
@@ -452,7 +472,8 @@ public class AtlasConversationsList extends FrameLayout implements LayerChangeEv
             trash.setOnClickListener(new OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    layerClient.deleteConversation((Conversation)getItem(position), LayerClient.DeletionMode.ALL_PARTICIPANTS);
+                    Conversation deleteConversation=(Conversation)getItem(position);
+                    deleteConversation.delete(LayerClient.DeletionMode.ALL_PARTICIPANTS);
                     conversations.remove(getItem(position));
                     swipeLayout.close(false);
                     notifyDataSetChanged();
