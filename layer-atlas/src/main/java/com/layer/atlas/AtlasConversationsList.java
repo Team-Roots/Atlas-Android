@@ -133,6 +133,29 @@ public class AtlasConversationsList extends FrameLayout implements LayerChangeEv
         this.dateFormat = android.text.format.DateFormat.getDateFormat(context);
         this.timeFormat = android.text.format.DateFormat.getTimeFormat(context);
     }
+    public ArrayList<String> getCounselorsinConversationWith(){
+       ArrayList<String> counselorsinConversationWith=new ArrayList<String>();
+        for(Conversation convo:conversations){
+            if(convo.getMetadata()!=null) {
+                counselorsinConversationWith.add((String)convo.getMetadata().get("counselor.ID"));
+            }
+
+        }
+        return counselorsinConversationWith;
+    }
+    public Conversation getConversationWithCounselorId(String counselorId){
+       Conversation conversationWithCounselorId=null;
+        int x=0;
+        while(conversationWithCounselorId==null && x<conversations.size()){
+
+            if(counselorId.equals((String)conversations.get(x).getMetadata().get("counselor.ID"))){
+                conversationWithCounselorId=conversations.get(x);
+            }
+            x++;
+        }
+        return conversationWithCounselorId;
+    }
+
     public ArrayList<Conversation> getConversations(){
         return conversations;
     }
@@ -373,7 +396,7 @@ public class AtlasConversationsList extends FrameLayout implements LayerChangeEv
             View avatarSingle = convertView.findViewById(R.id.atlas_view_conversations_list_convert_avatar_single);
             View avatarMulti = convertView.findViewById(R.id.atlas_view_conversations_list_convert_avatar_multi);
             ImageView imageView = (ImageView)convertView.findViewById(R.id.atlas_view_conversations_list_convert_avatar_single_image);
-            if (allButMe.size() < 2) {
+            if (allButMe.size() < 3 && allButMe.contains("1")) {
                 String conterpartyUserId = allButMe.get(0);
                 Atlas.Participant participant = participantProvider.getParticipant(conterpartyUserId);
                 textInitials.setText(participant == null ? null : Atlas.getInitials(participant));
@@ -391,7 +414,8 @@ public class AtlasConversationsList extends FrameLayout implements LayerChangeEv
                         conv.putMetadataAtKeyPath("student.name",generateRandomTreeName());
                         Log.d("name set check","name set check"+conv.getMetadata().get("student.name"));
                     }
-                    new LoadImage(imageView).execute((String)conv.getMetadata().get("student.avatarString"));
+
+                    new LoadImage(imageView).execute((String) conv.getMetadata().get("student.avatarString"));
                     textTitle.setText((String)conv.getMetadata().get("student.name"));
                 }
 
