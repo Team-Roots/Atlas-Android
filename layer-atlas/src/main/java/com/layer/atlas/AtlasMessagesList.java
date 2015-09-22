@@ -28,6 +28,7 @@ import android.os.AsyncTask;
 import android.os.Handler;
 import android.util.AttributeSet;
 import android.util.Log;
+import android.util.LruCache;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -124,6 +125,12 @@ public class AtlasMessagesList extends FrameLayout implements LayerChangeEventLi
     private int avatarTextColor;
     private int avatarBackgroundColor;
 
+    private LruCache<String, Bitmap> mMemoryCache;
+    private DiskLruImageCache mDiskLruCache;
+    private final Object mDiskCacheLock = new Object();
+    private boolean mDiskCacheStarting = true;
+    private final int DISK_CACHE_SIZE = 1024 * 1024 * 10; // 10MB
+    private Context context;
 
     //account type 1 is counselor
     //account type 0 is student
@@ -145,13 +152,37 @@ public class AtlasMessagesList extends FrameLayout implements LayerChangeEventLi
         this.timeFormat = android.text.format.DateFormat.getTimeFormat(context);
     }
 
-    public void init(final LayerClient layerClient, final Atlas.ParticipantProvider participantProvider, int accountTypeLocal) {
+    public void init(final LayerClient layerClient, final Atlas.ParticipantProvider participantProvider, int accountTypeLocal, Context contextLocal) {
         if (layerClient == null) throw new IllegalArgumentException("LayerClient cannot be null");
         if (participantProvider == null) throw new IllegalArgumentException("ParticipantProvider cannot be null");
         if (messagesList != null) throw new IllegalStateException("AtlasMessagesList is already initialized!");
 
+
         accountType=accountTypeLocal;
+        context=contextLocal;
         this.client = layerClient;
+
+
+        final int maxMemory = (int) (Runtime.getRuntime().maxMemory() / 1024);
+
+        // Use 1/8th of the available memory for this memory cache.
+        final int cacheSize = maxMemory;
+        mMemoryCache = new LruCache<String, Bitmap>(cacheSize) {
+            @Override
+            protected int sizeOf(String key, Bitmap bitmap) {
+                // The cache size will be measured in kilobytes rather than
+                // number of items.
+                return bitmap.getByteCount() / 1024;
+            }
+        };
+
+        new InitDiskCacheTask().execute();
+
+
+
+
+
+
         LayoutInflater.from(getContext()).inflate(R.layout.atlas_messages_list, this);
         
         // --- message view
@@ -223,10 +254,24 @@ public class AtlasMessagesList extends FrameLayout implements LayerChangeEventLi
                     String displayText = participant != null ? Atlas.getInitials(participant) : "";
                     textAvatar.setText(displayText);
                     textAvatar.setVisibility(View.INVISIBLE);
+
+
                     if(accountType==0) {
-                        new LoadImage(imageViewAvatar).execute((String)getConversation().getMetadata().get("counselor.avatarString"));
+                        String counselorIdMetadataUpper=(String)getConversation().getMetadata().get("counselor.ID");
+                        if(getBitmapFromCache(counselorIdMetadataUpper.toLowerCase())==null) {
+                            new LoadImage(imageViewAvatar).execute((String) getConversation().getMetadata().get("counselor.avatarString"));
+                        } else {
+                            RoundImage roundImage=new RoundImage(getBitmapFromCache(counselorIdMetadataUpper.toLowerCase()));
+                            imageViewAvatar.setImageDrawable(roundImage);
+                        }
                     }else {
-                        new LoadImage(imageViewAvatar).execute((String)getConversation().getMetadata().get("student.avatarString"));
+                        if(getBitmapFromCache((String)getConversation().getMetadata().get("student.ID"))==null) {
+                            new LoadImage(imageViewAvatar).execute((String) getConversation().getMetadata().get("student.avatarString"));
+                        } else {
+                            RoundImage roundImage=new RoundImage(getBitmapFromCache((String)getConversation().getMetadata().get("student.ID")));
+                            imageViewAvatar.setImageDrawable(roundImage);
+
+                        }
                     }
                     imageViewAvatar.setVisibility(View.VISIBLE);
 
@@ -1058,7 +1103,7 @@ public class AtlasMessagesList extends FrameLayout implements LayerChangeEventLi
     private void postViewRefresh() {
         messagesList.post(INVALIDATE_VIEW);
     }
-    
+
     private final Runnable INVALIDATE_VIEW = new Runnable() {
         public void run() {
             messagesList.invalidateViews();
@@ -1082,7 +1127,6 @@ public class AtlasMessagesList extends FrameLayout implements LayerChangeEventLi
         public LoadImage(ImageView imageViewLocal) {
             super();
             imageView=imageViewLocal;
-
         }
 
         //convert image of link to bitmap
@@ -1102,6 +1146,14 @@ public class AtlasMessagesList extends FrameLayout implements LayerChangeEventLi
         protected void onPostExecute(Bitmap image ) {
 
             if(image != null){
+                String upperCaseData;
+                if(accountType==0) {
+                    upperCaseData = (String) getConversation().getMetadata().get("counselor.ID");
+                }else {
+                    upperCaseData = (String) getConversation().getMetadata().get("student.ID");
+                }
+                addBitmapToCache(upperCaseData.toLowerCase(),image);
+
                 RoundImage roundImage=new RoundImage(image);
                 imageView.setImageDrawable(roundImage);
 
@@ -1137,8 +1189,54 @@ public class AtlasMessagesList extends FrameLayout implements LayerChangeEventLi
 
         public abstract View onBind(ViewGroup cellContainer);
     }
-    
-    
+
+    class InitDiskCacheTask extends AsyncTask<Void, Void, Void> {
+        @Override
+        protected Void doInBackground(Void ... params) {
+            synchronized (mDiskCacheLock) {
+                mDiskLruCache= new DiskLruImageCache(context, "thumbnails", DISK_CACHE_SIZE, Bitmap.CompressFormat.PNG, 50);
+                mDiskCacheStarting = false; // Finished initialization
+                mDiskCacheLock.notifyAll(); // Wake any waiting threads
+            }
+            return null;
+        }
+    }
+
+    public Bitmap getBitmapFromCache(String key) {
+        if (mMemoryCache.get(key)!=null) {
+            return mMemoryCache.get(key);
+        } else {
+            synchronized (mDiskCacheLock) {
+                // Wait while disk cache is started from background thread
+                while (mDiskCacheStarting) {
+                    try {
+                        mDiskCacheLock.wait();
+                    } catch (InterruptedException e) {
+                    }
+                }
+                if (mDiskLruCache != null) {
+                    mMemoryCache.put(key, mDiskLruCache.getBitmap(key));
+                    return mDiskLruCache.getBitmap(key);
+                } else {
+                    return null;
+                }
+            }
+        }
+    }
+
+    public void addBitmapToCache(String key, Bitmap bitmap) {
+        // Add to memory cache
+        mMemoryCache.put(key, bitmap);
+
+
+        // Also add to disk cache
+        synchronized (mDiskCacheLock) {
+            if (mDiskLruCache != null && mDiskLruCache.getBitmap(key) == null) {
+                mDiskLruCache.put(key, bitmap);
+            }
+        }
+    }
+
     public interface ItemClickListener {
         void onItemClick(Cell item);
     }

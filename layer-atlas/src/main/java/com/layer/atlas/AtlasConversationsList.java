@@ -26,6 +26,7 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.util.AttributeSet;
 import android.util.Log;
+import android.util.LruCache;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -117,6 +118,16 @@ public class AtlasConversationsList extends FrameLayout implements LayerChangeEv
     //default set to 0
     private int accountType;
 
+
+    //Image Caching
+    private LruCache<String, Bitmap> mMemoryCache;
+    private DiskLruImageCache mDiskLruCache;
+    private boolean mDiskCacheStarting = true;
+    private final Object mDiskCacheLock = new Object();
+    private final int DISK_CACHE_SIZE = 1024 * 1024 * 10; // 10MB
+    Context context;
+
+
     public AtlasConversationsList(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
         parseStyle(context, attrs, defStyle);
@@ -163,13 +174,39 @@ public class AtlasConversationsList extends FrameLayout implements LayerChangeEv
         return conversationsAdapter;
     }
 
-    public void init(final LayerClient layerClient, final Atlas.ParticipantProvider participantProvider, int accountTypeLocal) {
+    class InitDiskCacheTask extends AsyncTask<Void, Void, Void> {
+        @Override
+        protected Void doInBackground(Void ... params) {
+            synchronized (mDiskCacheLock) {
+                mDiskLruCache= new DiskLruImageCache(context, "thumbnails", DISK_CACHE_SIZE, Bitmap.CompressFormat.PNG, 50);
+                mDiskCacheStarting = false; // Finished initialization
+                mDiskCacheLock.notifyAll(); // Wake any waiting threads
+            }
+            return null;
+        }
+    }
+
+    public void init(final LayerClient layerClient, final Atlas.ParticipantProvider participantProvider, int accountTypeLocal, Context contextLocal) {
         if (layerClient == null) throw new IllegalArgumentException("LayerClient cannot be null");
         if (participantProvider == null) throw new IllegalArgumentException("ParticipantProvider cannot be null");
         if (conversationsList != null) throw new IllegalStateException("AtlasConversationList is already initialized!");
 
         this.layerClient = layerClient;
         accountType = accountTypeLocal;
+        context=contextLocal;
+        final int maxMemory = (int) (Runtime.getRuntime().maxMemory() / 1024);
+
+        // Use 1/8th of the available memory for this memory cache.
+        final int cacheSize = maxMemory;
+        mMemoryCache = new LruCache<String, Bitmap>(cacheSize) {
+            @Override
+            protected int sizeOf(String key, Bitmap bitmap) {
+                // The cache size will be measured in kilobytes rather than
+                // number of items.
+                return bitmap.getByteCount() / 1024;
+            }
+        };
+        new InitDiskCacheTask().execute();
 
 
         // inflate children:
@@ -258,6 +295,7 @@ public class AtlasConversationsList extends FrameLayout implements LayerChangeEv
             });
         }
     }
+
     public String generateRandomTreeName(){
         Random randomGenerator=new Random();
         String randomName="";
@@ -367,11 +405,13 @@ public class AtlasConversationsList extends FrameLayout implements LayerChangeEv
     }
 
 
+    //Swipe Adapter Documentation: https://github.com/daimajia/AndroidSwipeLayout/wiki
     public class AtlasBaseSwipeAdapter extends BaseSwipeAdapter {
         SwipeLayout swipeLayout;
         Atlas.ParticipantProvider participantProvider;
         public AtlasBaseSwipeAdapter(Atlas.ParticipantProvider provider){
             participantProvider=provider;
+
         }
         public int getSwipeLayoutResourceId(int position) {
             return R.id.swipeconversationlistitem;
@@ -399,14 +439,29 @@ public class AtlasConversationsList extends FrameLayout implements LayerChangeEv
             if (allButMe.size() < 3 && allButMe.contains("1")) {
                 String conterpartyUserId = allButMe.get(0);
                 Atlas.Participant participant = participantProvider.getParticipant(conterpartyUserId);
+
+                //hide textInitials
                 textInitials.setText(participant == null ? null : Atlas.getInitials(participant));
                 textInitials.setTextColor(avatarTextColor);
                 ((GradientDrawable) textInitials.getBackground()).setColor(avatarBackgroundColor);
                 textInitials.setVisibility(View.GONE);
 
 
+
                 if(conv.getMetadata().get("counselor")!=null && accountType==0) {
-                    new LoadImage(imageView).execute((String)conv.getMetadata().get("counselor.avatarString"));
+                    String counselorIdMetadataUpper=(String)conv.getMetadata().get("counselor.ID");
+                    Log.d("counselorIdMetadata","counselorIdMetadataUpper"+counselorIdMetadataUpper);
+                    if(getBitmapFromCache(counselorIdMetadataUpper.toLowerCase())==null){
+                        Log.d("Loading Image", "Loading Image "+ "Loading Image");
+
+                        new LoadImage(imageView, conv).execute((String)conv.getMetadata().get("counselor.avatarString"));
+                    } else {
+                        Log.d("cached","cached");
+                        Log.d("cached","cachedConversationList");
+                        RoundImage roundImage=new RoundImage(getBitmapFromCache(counselorIdMetadataUpper.toLowerCase()));
+                        imageView.setImageDrawable(roundImage);
+                    }
+
                     textTitle.setText((String)conv.getMetadata().get("counselor.name"));
                 } else if (conv.getMetadata().get("student")!=null && accountType==1) {
 
@@ -414,8 +469,15 @@ public class AtlasConversationsList extends FrameLayout implements LayerChangeEv
                         conv.putMetadataAtKeyPath("student.name",generateRandomTreeName());
                         Log.d("name set check","name set check"+conv.getMetadata().get("student.name"));
                     }
+                    if(getBitmapFromCache((String)conv.getMetadata().get("student.ID"))==null){
+                        Log.d("Loading Image", "Loading Image "+ "Loading Image");
+                        new LoadImage(imageView, conv).execute((String)conv.getMetadata().get("student.avatarString"));
+                    } else {
+                        Log.d("cached","cachedConversationList");
+                        RoundImage roundImage=new RoundImage(getBitmapFromCache((String) conv.getMetadata().get("student.ID")));
+                        imageView.setImageDrawable(roundImage);
+                    }
 
-                    new LoadImage(imageView).execute((String) conv.getMetadata().get("student.avatarString"));
                     textTitle.setText((String)conv.getMetadata().get("student.name"));
                 }
 
@@ -517,14 +579,54 @@ public class AtlasConversationsList extends FrameLayout implements LayerChangeEv
             return conversations.size();
         }
 
+        public Bitmap getBitmapFromCache(String key) {
+            Log.d("key","keykey"+key);
+            if (mMemoryCache.get(key)!=null) {
+                return mMemoryCache.get(key);
+            } else {
+                synchronized (mDiskCacheLock) {
+                    // Wait while disk cache is started from background thread
+                    while (mDiskCacheStarting) {
+                        try {
+                            mDiskCacheLock.wait();
+                        } catch (InterruptedException e) {
+                        }
+                    }
+                    if (mDiskLruCache != null) {
+                        if (mDiskLruCache.getBitmap(key)==null) {
+                            return null;
+                        } else {
+                            mMemoryCache.put(key, mDiskLruCache.getBitmap(key));
+                        }
+                        return mDiskLruCache.getBitmap(key);
+                    } else {
+                        return null;
+                    }
+                }
+            }
+        }
+
+        public void addBitmapToCache(String key, Bitmap bitmap) {
+            // Add to memory cache
+            mMemoryCache.put(key, bitmap);
+
+
+            // Also add to disk cache
+            synchronized (mDiskCacheLock) {
+                if (mDiskLruCache != null && mDiskLruCache.getBitmap(key) == null) {
+                    mDiskLruCache.put(key, bitmap);
+                }
+            }
+        }
+
         private class LoadImage extends AsyncTask<String, String, Bitmap> {
             ImageView imageView=null;
-
+            Conversation conversation;
             //for passing image View
-            public LoadImage(ImageView imageViewLocal) {
+            public LoadImage(ImageView imageViewLocal, Conversation convparam) {
                 super();
                 imageView=imageViewLocal;
-
+                conversation=convparam;
             }
 
             //convert image of link to bitmap
@@ -544,6 +646,14 @@ public class AtlasConversationsList extends FrameLayout implements LayerChangeEv
             protected void onPostExecute(Bitmap image ) {
 
                 if(image != null){
+                    //Log.d("caching","caching");
+                    String upperCaseData;
+                    if(accountType==0) {
+                        upperCaseData = (String) conversation.getMetadata().get("counselor.ID");
+                    }else {
+                        upperCaseData = (String) conversation.getMetadata().get("student.ID");
+                    }
+                    addBitmapToCache(upperCaseData.toLowerCase(),image);
                     RoundImage roundImage=new RoundImage(image);
                     imageView.setImageDrawable(roundImage);
 
@@ -551,6 +661,8 @@ public class AtlasConversationsList extends FrameLayout implements LayerChangeEv
                     Log.d("failed to set bitmap to image view", "failed to set bitmap to image view");
                 }
             }
+
+
         }
 
     }

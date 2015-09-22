@@ -39,6 +39,7 @@ import com.layer.sdk.exceptions.LayerException;
 import com.layer.sdk.listeners.LayerTypingIndicatorListener;
 import com.layer.sdk.messaging.Conversation;
 import com.layer.sdk.messaging.Message;
+import com.layer.sdk.messaging.MessageOptions;
 import com.layer.sdk.messaging.MessagePart;
 
 import java.util.ArrayList;
@@ -190,7 +191,9 @@ public class AtlasMessageComposer extends FrameLayout {
                         Log.e(TAG, "Cannot send message. Conversation is not set");
                     }
                     if (conv == null) return;
-                    
+                    //Formats the push notification text
+                    MessageOptions options = new MessageOptions();
+                    options.pushNotificationMessage(text);
                     conv.send(msg);
                     messageText.setText("");
                 }
