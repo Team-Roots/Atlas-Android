@@ -20,6 +20,7 @@ import android.content.res.TypedArray;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.graphics.Rect;
 import android.graphics.Typeface;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.GradientDrawable;
@@ -1128,11 +1129,45 @@ public class AtlasMessagesList extends FrameLayout implements LayerChangeEventLi
             super();
             imageView=imageViewLocal;
         }
+        public int calculateInSampleSize(
+                BitmapFactory.Options options, int reqWidth, int reqHeight) {
+            // Raw height and width of image
+            final int height = options.outHeight;
+            final int width = options.outWidth;
+            int inSampleSize = 1;
+
+            if (height > reqHeight || width > reqWidth) {
+
+                final int halfHeight = height / 2;
+                final int halfWidth = width / 2;
+
+                // Calculate the largest inSampleSize value that is a power of 2 and keeps both
+                // height and width larger than the requested height and width.
+                while ((halfHeight / inSampleSize) > reqHeight
+                        && (halfWidth / inSampleSize) > reqWidth) {
+                    inSampleSize *= 2;
+                }
+            }
+
+            return inSampleSize;
+        }
 
         //convert image of link to bitmap
         protected Bitmap doInBackground(String... args) {
             Bitmap bitmap=null;
             try {
+                BitmapFactory.Options options= new BitmapFactory.Options();
+                options.inJustDecodeBounds = true;
+                Rect padding=new Rect();
+                padding.setEmpty();
+                BitmapFactory.decodeStream((InputStream) new URL(args[0]).getContent(), padding, options);
+                //int imageHeight = options.outHeight;
+                //int imageWidth = options.outWidth;
+                //String imageType = options.outMimeType;
+
+                // Calculate inSampleSize
+                options.inSampleSize = calculateInSampleSize(options, 192, 192);
+                options.inJustDecodeBounds = false;
                 bitmap = BitmapFactory.decodeStream((InputStream) new URL(args[0]).getContent());
 
             } catch (Exception e) {
@@ -1161,6 +1196,8 @@ public class AtlasMessagesList extends FrameLayout implements LayerChangeEventLi
                 Log.d("ConversationListAct", "failed to set bitmap to image view");
             }
         }
+
+
     }
 
     public abstract class Cell {
@@ -1215,8 +1252,12 @@ public class AtlasMessagesList extends FrameLayout implements LayerChangeEventLi
                     }
                 }
                 if (mDiskLruCache != null) {
-                    mMemoryCache.put(key, mDiskLruCache.getBitmap(key));
-                    return mDiskLruCache.getBitmap(key);
+                    if(mDiskLruCache.getBitmap(key)!=null) {
+                        mMemoryCache.put(key, mDiskLruCache.getBitmap(key));
+                        return mDiskLruCache.getBitmap(key);
+                    } else {
+                        return null;
+                    }
                 } else {
                     return null;
                 }

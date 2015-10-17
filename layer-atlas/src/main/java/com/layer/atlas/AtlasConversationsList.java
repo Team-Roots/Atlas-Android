@@ -20,6 +20,7 @@ import android.content.res.TypedArray;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.graphics.Rect;
 import android.graphics.Typeface;
 import android.graphics.drawable.GradientDrawable;
 import android.net.Uri;
@@ -124,9 +125,8 @@ public class AtlasConversationsList extends FrameLayout implements LayerChangeEv
     private DiskLruImageCache mDiskLruCache;
     private boolean mDiskCacheStarting = true;
     private final Object mDiskCacheLock = new Object();
-    private final int DISK_CACHE_SIZE = 1024 * 1024 * 10; // 10MB
+    private final int DISK_CACHE_SIZE = 1024 * 1024 *10; // 10MB
     Context context;
-
 
     public AtlasConversationsList(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
@@ -405,6 +405,7 @@ public class AtlasConversationsList extends FrameLayout implements LayerChangeEv
     }
 
 
+
     //Swipe Adapter Documentation: https://github.com/daimajia/AndroidSwipeLayout/wiki
     public class AtlasBaseSwipeAdapter extends BaseSwipeAdapter {
         SwipeLayout swipeLayout;
@@ -579,8 +580,9 @@ public class AtlasConversationsList extends FrameLayout implements LayerChangeEv
             return conversations.size();
         }
 
+
         public Bitmap getBitmapFromCache(String key) {
-            Log.d("key","keykey"+key);
+            Log.d("key", "keykey" + key);
             if (mMemoryCache.get(key)!=null) {
                 return mMemoryCache.get(key);
             } else {
@@ -593,12 +595,12 @@ public class AtlasConversationsList extends FrameLayout implements LayerChangeEv
                         }
                     }
                     if (mDiskLruCache != null) {
-                        if (mDiskLruCache.getBitmap(key)==null) {
-                            return null;
-                        } else {
+                        if(mDiskLruCache.getBitmap(key)!=null) {
                             mMemoryCache.put(key, mDiskLruCache.getBitmap(key));
+                            return mDiskLruCache.getBitmap(key);
+                        } else {
+                            return null;
                         }
-                        return mDiskLruCache.getBitmap(key);
                     } else {
                         return null;
                     }
@@ -608,8 +610,8 @@ public class AtlasConversationsList extends FrameLayout implements LayerChangeEv
 
         public void addBitmapToCache(String key, Bitmap bitmap) {
             // Add to memory cache
-            mMemoryCache.put(key, bitmap);
 
+            mMemoryCache.put(key, bitmap);
 
             // Also add to disk cache
             synchronized (mDiskCacheLock) {
@@ -628,12 +630,47 @@ public class AtlasConversationsList extends FrameLayout implements LayerChangeEv
                 imageView=imageViewLocal;
                 conversation=convparam;
             }
+            public int calculateInSampleSize(
+                    BitmapFactory.Options options, int reqWidth, int reqHeight) {
+                // Raw height and width of image
+                final int height = options.outHeight;
+                final int width = options.outWidth;
+                int inSampleSize = 1;
+
+                if (height > reqHeight || width > reqWidth) {
+
+                    final int halfHeight = height / 2;
+                    final int halfWidth = width / 2;
+
+                    // Calculate the largest inSampleSize value that is a power of 2 and keeps both
+                    // height and width larger than the requested height and width.
+                    while ((halfHeight / inSampleSize) > reqHeight
+                            && (halfWidth / inSampleSize) > reqWidth) {
+                        inSampleSize *= 2;
+                    }
+                }
+
+                return inSampleSize;
+            }
 
             //convert image of link to bitmap
             protected Bitmap doInBackground(String... args) {
                 Bitmap bitmap=null;
                 try {
                     bitmap = BitmapFactory.decodeStream((InputStream) new URL(args[0]).getContent());
+                    BitmapFactory.Options options= new BitmapFactory.Options();
+                    options.inJustDecodeBounds = true;
+                    Rect padding=new Rect();
+                    padding.setEmpty();
+                    BitmapFactory.decodeStream((InputStream) new URL(args[0]).getContent(), padding, options);
+                    //int imageHeight = options.outHeight;
+                    //int imageWidth = options.outWidth;
+                    //String imageType = options.outMimeType;
+
+                    // Calculate inSampleSize
+                    options.inSampleSize = calculateInSampleSize(options, 192, 192);
+                    options.inJustDecodeBounds = false;
+                    bitmap = BitmapFactory.decodeStream((InputStream) new URL(args[0]).getContent(), padding, options);
 
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -661,6 +698,8 @@ public class AtlasConversationsList extends FrameLayout implements LayerChangeEv
                     Log.d("failed to set bitmap to image view", "failed to set bitmap to image view");
                 }
             }
+
+
 
 
         }

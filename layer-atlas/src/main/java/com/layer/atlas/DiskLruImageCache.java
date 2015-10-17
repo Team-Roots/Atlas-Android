@@ -6,8 +6,8 @@ import android.graphics.BitmapFactory;
 import android.os.Environment;
 import android.util.Log;
 
-//Documentation for DiskLruCache: https://github.com/JakeWharton/DiskLruCache
 import com.jakewharton.disklrucache.DiskLruCache;
+
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
@@ -15,6 +15,8 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+
+//Documentation for DiskLruCache: https://github.com/JakeWharton/DiskLruCache
 
 
 public class DiskLruImageCache {
@@ -98,6 +100,7 @@ public class DiskLruImageCache {
         }
 
     }
+
 
     public Bitmap getBitmap( String key ) {
 
