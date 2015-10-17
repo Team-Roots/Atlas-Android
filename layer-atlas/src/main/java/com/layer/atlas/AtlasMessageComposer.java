@@ -182,7 +182,10 @@ public class AtlasMessageComposer extends FrameLayout {
                     for (String line : lines) {
                         parts.add(layerClient.newMessagePart(line));
                     }
-                    Message msg = layerClient.newMessage(parts);
+                    MessageOptions options = new MessageOptions();
+                    options.pushNotificationMessage(text);
+
+                    Message msg = layerClient.newMessage(options, parts);
                     
                     if (listener != null) {
                         boolean proceed = listener.beforeSend(msg);
@@ -192,8 +195,7 @@ public class AtlasMessageComposer extends FrameLayout {
                     }
                     if (conv == null) return;
                     //Formats the push notification text
-                    MessageOptions options = new MessageOptions();
-                    options.pushNotificationMessage(text);
+
                     conv.send(msg);
                     messageText.setText("");
                 }
