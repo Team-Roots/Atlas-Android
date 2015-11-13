@@ -225,7 +225,7 @@ public class Atlas {
          */
         String getLastName();
         
-        public static Comparator<Participant> COMPARATOR = new FilteringComparator("");
+        Comparator<Participant> COMPARATOR = new FilteringComparator("");
     }
 
     /**

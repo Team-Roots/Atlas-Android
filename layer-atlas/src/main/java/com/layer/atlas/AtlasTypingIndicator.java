@@ -15,11 +15,6 @@
  */
 package com.layer.atlas;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
 import android.content.Context;
 import android.content.res.Resources;
 import android.content.res.TypedArray;
@@ -32,6 +27,12 @@ import com.layer.atlas.Atlas.ParticipantProvider;
 import com.layer.sdk.LayerClient;
 import com.layer.sdk.listeners.LayerTypingIndicatorListener;
 import com.layer.sdk.messaging.Conversation;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 /**
  * AtlasTypingIndicator provides feedback about typists within a Conversation.  When initialized
@@ -214,7 +215,7 @@ public class AtlasTypingIndicator extends FrameLayout implements LayerTypingIndi
             for (Atlas.Participant typist : typists) {
                 names[i++] = Atlas.getFullName(typist);
             }
-            indicator.setText(String.format(string, names));
+            indicator.setText(Arrays.toString(names));
             indicator.setVisibility(VISIBLE);
         }
     }

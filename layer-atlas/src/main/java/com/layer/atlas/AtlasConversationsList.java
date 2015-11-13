@@ -25,6 +25,8 @@ import android.graphics.Typeface;
 import android.graphics.drawable.GradientDrawable;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Handler;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.util.LruCache;
@@ -108,8 +110,11 @@ public class AtlasConversationsList extends FrameLayout implements LayerChangeEv
     private int dateTextColor;
     private int avatarTextColor;
     private int avatarBackgroundColor;
+    SwipeRefreshLayout mSwipeRefreshLayout;
 
-    // date 
+
+
+    // date
     private final DateFormat dateFormat;
     private final DateFormat timeFormat;
 
@@ -154,12 +159,13 @@ public class AtlasConversationsList extends FrameLayout implements LayerChangeEv
         }
         return counselorsinConversationWith;
     }
+
     public Conversation getConversationWithCounselorId(String counselorId){
        Conversation conversationWithCounselorId=null;
         int x=0;
         while(conversationWithCounselorId==null && x<conversations.size()){
 
-            if(counselorId.equals((String)conversations.get(x).getMetadata().get("counselor.ID"))){
+            if(counselorId.equals(conversations.get(x).getMetadata().get("counselor.ID"))){
                 conversationWithCounselorId=conversations.get(x);
             }
             x++;
@@ -240,17 +246,42 @@ public class AtlasConversationsList extends FrameLayout implements LayerChangeEv
                 if (debug) Log.w(TAG, "onDeauthenticated() ");
                 updateValues();
             }
+
             public void onAuthenticated(LayerClient client, String userId) {
                 updateValues();
             }
-            public void onAuthenticationError(LayerClient client, LayerException exception) {}
-            public void onAuthenticationChallenge(LayerClient client, String nonce) {}
+
+            public void onAuthenticationError(LayerClient client, LayerException exception) {
+            }
+
+            public void onAuthenticationChallenge(LayerClient client, String nonce) {
+            }
         });
         
         applyStyle();
 
         updateValues();
+        mSwipeRefreshLayout=(SwipeRefreshLayout)findViewById(R.id.conversation_list_swipe_refresh_layout);
+        mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                updateValues();
+                refreshContent();
+            }
+        });
     }
+
+    private void refreshContent(){
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+
+                mSwipeRefreshLayout.setRefreshing(false);
+            }
+        }, 1500);
+        }
+
+
 
     public void updateValues() {
         if (conversationsAdapter == null) {                 // never initialized
@@ -457,8 +488,6 @@ public class AtlasConversationsList extends FrameLayout implements LayerChangeEv
 
                         new LoadImage(imageView, conv).execute((String)conv.getMetadata().get("counselor.avatarString"));
                     } else {
-                        Log.d("cached","cached");
-                        Log.d("cached","cachedConversationList");
                         RoundImage roundImage=new RoundImage(getBitmapFromCache(counselorIdMetadataUpper.toLowerCase()));
                         imageView.setImageDrawable(roundImage);
                     }
@@ -470,12 +499,12 @@ public class AtlasConversationsList extends FrameLayout implements LayerChangeEv
                         conv.putMetadataAtKeyPath("student.name",generateRandomTreeName());
                         Log.d("name set check","name set check"+conv.getMetadata().get("student.name"));
                     }
-                    if(getBitmapFromCache((String)conv.getMetadata().get("student.ID"))==null){
+                    if(getBitmapFromCache(((String)conv.getMetadata().get("student.ID")).toLowerCase())==null){
                         Log.d("Loading Image", "Loading Image "+ "Loading Image");
                         new LoadImage(imageView, conv).execute((String)conv.getMetadata().get("student.avatarString"));
                     } else {
                         Log.d("cached","cachedConversationList");
-                        RoundImage roundImage=new RoundImage(getBitmapFromCache((String) conv.getMetadata().get("student.ID")));
+                        RoundImage roundImage=new RoundImage(getBitmapFromCache(((String) conv.getMetadata().get("student.ID")).toLowerCase()));
                         imageView.setImageDrawable(roundImage);
                     }
 
@@ -663,9 +692,6 @@ public class AtlasConversationsList extends FrameLayout implements LayerChangeEv
                     Rect padding=new Rect();
                     padding.setEmpty();
                     BitmapFactory.decodeStream((InputStream) new URL(args[0]).getContent(), padding, options);
-                    //int imageHeight = options.outHeight;
-                    //int imageWidth = options.outWidth;
-                    //String imageType = options.outMimeType;
 
                     // Calculate inSampleSize
                     options.inSampleSize = calculateInSampleSize(options, 192, 192);

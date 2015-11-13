@@ -266,10 +266,10 @@ public class AtlasMessagesList extends FrameLayout implements LayerChangeEventLi
                             imageViewAvatar.setImageDrawable(roundImage);
                         }
                     }else {
-                        if(getBitmapFromCache((String)getConversation().getMetadata().get("student.ID"))==null) {
+                        if(getBitmapFromCache(((String)getConversation().getMetadata().get("student.ID")).toLowerCase())==null) {
                             new LoadImage(imageViewAvatar).execute((String) getConversation().getMetadata().get("student.avatarString"));
                         } else {
-                            RoundImage roundImage=new RoundImage(getBitmapFromCache((String)getConversation().getMetadata().get("student.ID")));
+                            RoundImage roundImage=new RoundImage(getBitmapFromCache(((String)getConversation().getMetadata().get("student.ID")).toLowerCase()));
                             imageViewAvatar.setImageDrawable(roundImage);
 
                         }
@@ -860,7 +860,7 @@ public class AtlasMessagesList extends FrameLayout implements LayerChangeEventLi
                             if (next.completeListener != null) {
                                 next.completeListener.onDownloadComplete(next.url, next.file);
                             }
-                        };
+                        }
                     } catch (Throwable e) {
                         Log.e(TAG, "onComplete() thrown an exception for: " + next.url, e);
                     }
@@ -883,7 +883,7 @@ public class AtlasMessagesList extends FrameLayout implements LayerChangeEventLi
         }
         
         public interface CompleteListener {
-            public void onDownloadComplete(String url, File file);
+            void onDownloadComplete(String url, File file);
         }
     }
     
