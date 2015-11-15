@@ -25,6 +25,7 @@ import android.text.TextWatcher;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.Gravity;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -173,37 +174,50 @@ public class AtlasMessageComposer extends FrameLayout {
         btnSend.setOnClickListener(new OnClickListener() {
             public void onClick(View v) {
                 
-                String text = messageText.getText().toString();
-                
-                if (text.trim().length() > 0) {
-                    
-                    ArrayList<MessagePart> parts = new ArrayList<MessagePart>();
-                    String[] lines = text.split("\n+");
-                    for (String line : lines) {
-                        parts.add(layerClient.newMessagePart(line));
-                    }
-                    MessageOptions options = new MessageOptions();
-                    options.pushNotificationMessage(text);
+               sendMessage();
+            }
+        });
 
-                    Message msg = layerClient.newMessage(options, parts);
-                    
-                    if (listener != null) {
-                        boolean proceed = listener.beforeSend(msg);
-                        if (!proceed) return;
-                    } else if (conv == null) {
-                        Log.e(TAG, "Cannot send message. Conversation is not set");
-                    }
-                    if (conv == null) return;
-                    //Formats the push notification text
-
-                    conv.send(msg);
-                    messageText.setText("");
-                }
+        messageText.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                boolean handled = false;
+                    sendMessage();
+                    handled = true;
+                return handled;
             }
         });
         applyStyle();
     }
-    
+
+    private void sendMessage() {
+        String text = messageText.getText().toString();
+
+        if (text.trim().length() > 0) {
+
+            ArrayList<MessagePart> parts = new ArrayList<MessagePart>();
+            String[] lines = text.split("\n+");
+            for (String line : lines) {
+                parts.add(layerClient.newMessagePart(line));
+            }
+            MessageOptions options = new MessageOptions();
+            options.pushNotificationMessage(text);
+
+            Message msg = layerClient.newMessage(options, parts);
+
+            if (listener != null) {
+                boolean proceed = listener.beforeSend(msg);
+                if (!proceed) return;
+            } else if (conv == null) {
+                Log.e(TAG, "Cannot send message. Conversation is not set");
+            }
+            if (conv == null) return;
+            //Formats the push notification text
+
+            conv.send(msg);
+            messageText.setText("");
+        }
+    }
     private void applyStyle() {
         //messageText.setTextSize(textSize);
         messageText.setTypeface(typeFace, textStyle);

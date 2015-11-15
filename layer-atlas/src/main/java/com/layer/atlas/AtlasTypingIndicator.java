@@ -29,7 +29,6 @@ import com.layer.sdk.listeners.LayerTypingIndicatorListener;
 import com.layer.sdk.messaging.Conversation;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -46,6 +45,7 @@ public class AtlasTypingIndicator extends FrameLayout implements LayerTypingIndi
     private final Set<String> mTypists = new HashSet<String>();
     private TextView mTextView;
     private Callback mCallback;
+    static Conversation secondConversation;
 
     // styles
     private int mTextColor;
@@ -78,7 +78,9 @@ public class AtlasTypingIndicator extends FrameLayout implements LayerTypingIndi
         if (callback == null) throw new IllegalArgumentException("Callback cannot be null");
         if (mTextView != null) throw new IllegalStateException("AtlasTypingIndicator is already initialized!");
         mConversation = conversation;
+        secondConversation=conversation;
         this.mCallback = callback;
+
         this.mTextView = new TextView(getContext());
         addView(mTextView);
         applyStyle();
@@ -199,7 +201,10 @@ public class AtlasTypingIndicator extends FrameLayout implements LayerTypingIndi
             List<Atlas.Participant> typists = new ArrayList<Atlas.Participant>(typingUserIds.size());
             for (String userId : typingUserIds) {
                 Atlas.Participant participant = mParticipantProvider.getParticipant(userId);
-                if (participant != null) typists.add(participant);
+                if (participant != null)
+                    typists.add(participant);
+                else
+                    typists.add(null);
             }
 
             if (typists.isEmpty()) {
@@ -213,9 +218,16 @@ public class AtlasTypingIndicator extends FrameLayout implements LayerTypingIndi
             String[] names = new String[typists.size()];
             int i = 0;
             for (Atlas.Participant typist : typists) {
-                names[i++] = Atlas.getFullName(typist);
+                if (typist==null){
+
+                    indicator.setText(secondConversation.getMetadata().get("student.name") +" is typing...");
+                }else {
+                    names[i++] = Atlas.getFullName(typist);
+                }
             }
-            indicator.setText(Arrays.toString(names));
+            if(names[0]!=null)
+            indicator.setText(names[0]+ " is typing...");
+
             indicator.setVisibility(VISIBLE);
         }
     }

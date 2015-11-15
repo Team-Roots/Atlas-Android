@@ -39,6 +39,8 @@
         android:background="@drawable/atlas_ctl_edit_text"
         android:hint="What's on your mind?"
         android:minHeight="48dp"
+        android:inputType="text"
+        android:imeOptions="actionNone"
         />
     
     <TextView
