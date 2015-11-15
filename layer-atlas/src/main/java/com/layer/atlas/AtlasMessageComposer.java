@@ -60,7 +60,7 @@ public class AtlasMessageComposer extends FrameLayout {
     private Listener listener;
     private Conversation conv;
     private LayerClient layerClient;
-    
+    private int accountType;
     private ArrayList<MenuItem> menuItems = new ArrayList<MenuItem>(); 
     
     // styles
@@ -102,13 +102,13 @@ public class AtlasMessageComposer extends FrameLayout {
      * @param client - must be not null
      * @param conversation - could be null. Conversation could be provided later using {@link #setConversation(Conversation)}
      */
-    public void init(LayerClient client, Conversation conversation) {
+    public void init(LayerClient client, Conversation conversation, int accountType) {
         if (client == null) throw new IllegalArgumentException("LayerClient cannot be null");
         if (messageText != null) throw new IllegalStateException("AtlasMessageComposer is already initialized!");
         
         this.layerClient = client;
         this.conv = conversation;
-        
+        this.accountType=accountType;
         LayoutInflater.from(getContext()).inflate(R.layout.atlas_message_composer, this);
         
         btnUpload = findViewById(R.id.atlas_message_composer_upload);
@@ -201,7 +201,14 @@ public class AtlasMessageComposer extends FrameLayout {
                 parts.add(layerClient.newMessagePart(line));
             }
             MessageOptions options = new MessageOptions();
-            options.pushNotificationMessage(text);
+
+
+            if(accountType==1) {
+                options.pushNotificationMessage((String) conv.getMetadata().get("student.name") + "," + (String) conv.getMetadata().get("student.avatarString") + "," + text);
+
+            } else {
+                options.pushNotificationMessage((String) conv.getMetadata().get("counselor.name") + "," + (String) conv.getMetadata().get("counselor.avatarString") + "," + text);
+            }
 
             Message msg = layerClient.newMessage(options, parts);
 
