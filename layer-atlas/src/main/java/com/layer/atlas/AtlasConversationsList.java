@@ -43,8 +43,6 @@ import android.widget.TextView;
 
 import com.daimajia.swipe.SwipeLayout;
 import com.daimajia.swipe.adapters.BaseSwipeAdapter;
-import com.layer.atlas.Atlas.Participant;
-import com.layer.atlas.Atlas.Tools;
 import com.layer.sdk.LayerClient;
 import com.layer.sdk.changes.LayerChange;
 import com.layer.sdk.changes.LayerChangeEvent;
@@ -75,8 +73,8 @@ import java.util.Random;
 public class AtlasConversationsList extends FrameLayout implements LayerChangeEventListener.MainThread {
 
 
-    private String[] treenameA = {"African","Algerian","American","Annual","Appalachian","Ash-leaved","Asian","Baby","Bank","Bastard","Bear","Bearberry","Belle","Bermuda","Big ","Bird\'s","Bitter","Black","Black-eyed","Black-weed","Blue","Blunt-leaved","Bolean","Boston","Brilliant","Bristly","Brown","Brown-eyed","Buffalo","Bulbous","Bull","Bur ","Butterfly","Cabinet","Cane","Canoe","Canyon","Cart","Champion","Chigger","Chrysanthemum","Climbing","Clumpfoot","Coast","Colic","Common","Coyote","Creek","Creeping","Crow\'s","Cursed","Cutleaf","Damask","Dame\'s","Deadly","Deciduous","Devil\'s","Dooryard","Downy","Duck","Dwarf","Dyer\'s","Early","Earth","Eastern","Evergreen","Extinguisher","False","Fern-leaf","Fernleaf","Field","Flowering","Garden","Giant","Gloriosa","Golden","Goodding","Goose","Gray","Great","Greater","Green","Green-headed","Hairy","Hard","Hare\'s","Hay ","Healing","Hedge","Hen ","Henbit","Herb","Hispid","Honey","Horse","Horsetail","Hound\'s","Island","Kenaf","Kimberly","Lamb\'s","Land","Leatherleaf","Love","Low ","Mango","Meadow","Milk","Milky","Mirbeck\'s","Moose","Mosquito","Mossycup","Mountain","Multiflora","Nature\'s","New ","Night","Nodding","Northern ","Orange-root","Osage","Pale","Paper","Pedunculate","Penny","Pepper","Perennial","Petty","Pigeon","Pin","Pink","Pistachio","Plane","Pleurisy","Pocan","Poison","Poke","Polecat","Poor","Poorland","Prairie","Prickly","Pudina","Purple","Purple-flowered","Queen","Queen\'s","Radical","Rambler","Red ","Rheumatism","Rhubarb","Ribwort","River","Rock","Rogue\'s","Roman","Roundleaf","Rum ","Running ","Sand","Sauce-alone","Scarlet","Scotch","Scrambled","Screwbean","Scrub","Scurvy","Sessile","Sharp-fringed","Silky","Silver","Silverleaf","Skunk","Small-flowered","Sneezeweed","Sneezewort","Soft","Soldier\'s","Spanish","Speckled","Spice","Spiny","Spiny-leaved","Spotted","Spring","Squaw","Stag","Striped","Summer","Sunflower","Swamp","Sweet","Swine","Sword","Tall","Tassel ","Thin-leaved","Three-leaved","Trailing","Traveller\'s","True","Upland","Valley","Vanilla","Virgin\'s","Virginia","Wall","Water","Way ","Wayside","Weeping","Western","Whiskey","White","White-root","Whorled","Wild","Winter","Woody","Woolly","Wound","Yellow","Yellowbark"};
-    private String[] treenameB = {"Aconite","Alder","Almond","Ambrosia","Anne\'s Lace","Annie","Apple","Apricot","Arfaj","Arrowwood","Ash","Azolla","Bamboo","Banana Tree","Barbara","Bay","Bean","Bearberry","Beech","Berry","Betty","Bindweed","Birch","Bite","Bittercress","Bittersweet","Bitterweed","Black Cherry","Black Oak","Blackberry","Blackhaw","Blade","Bloom","Blueberry","Boabab","Bow-wood","Bower","Box","Boxelder","Boxwood","Brier","Brittlebush","Broadleaf","Buckeye","Bull\'s Eye","Bush","Buttons","Cabbage","Cane","Cap","Carrot","Cherry","Chestnut","Cinnamon","Clove","Clover","Coakum","Coconut","Coffee","Collard","Colwort","Coneflower","Corn","Cornel","Corydalis","Cotton","Cress","Crowfoot","Cucumber","Daisy","Darning Needle","Deadnettle","Dewberry","Dindle","Dogbane","Dogwood","Duscle","Eucalyptus","Eytelia","Fairymoss","Fellenwort","Felonwood","Felonwort","Fennel","Fern","Fever Weed","Feverbush","Feverfew","Fieldcress","Fig","Flax","Flower","Fluxroot","Foot","Fumewort","Gall","Gallberry","Garget","Garlic","Gilliflower","Goldenglow","Grapefruit","Grapevine","Grass","Groundberry","Gutweed","Hair","Haldi","Harlequin","Hedge","Hellebore","Hemp","Hogweed","Holly","Hops","Horse Nettle","Houseleek","Huckleberry","Ink Plant","Inkberry","Itchweed","Ivy","Jack-in-the-Bush","Jalap","Jerusalem","Joy","Juniper","Keek","Kinnikinnik","Kousa","Kudzu","Laceflower","Laurel","Lavender","Leek","Lemon","Lettuce","Lilac","Mahogany","Maize","Man\'s Foot","Man\'s Mustard","Maple","Mesquite","Milfoil","Milkweed","Mistake","Moosewood","Morel","Moss","Mulberry","Mustard","Neem","Nettle","Nightshade","Nosebleed","Oak","Olive","Onion","Orange","Orange-root","Osage","Osier","Paintbrush","Parsley","Parsnip","Pea","Peach","Peanut","Pear","Pellitory","Pine","Pineapple","Pistachio","Plague","Plant","Plantain","Poisonberry","Poisonflower","Poke","Pokeroot","Pokeweed","Polkweed","Polypody","Poplar","Poppy","Possumhaw","Posy","Potato","Pudina","Quercitron","Ragweed","Rantipole","Rapeseed","Raspberry","Redbrush","Redbud","Redweed","Retten","Rhubarb","Ribwort","Roadweed","Rock Fern","Rocket","Root","Rose","Rosemary","Rye","Saffron","Sanguinary","Scoke","Serviceberry","Shadblow","Shadbush","Silkweed","Skunkweed","Snakeberry","Sneezeweed","Sneezewort","Snowdrop","Sorrel","Sow Thistle","Spanish Oak","Speedwell","Spoolwood","Stammerwort","Stickweed","Strawberry","Sugarcane","Sugarplum","Sunflower","Susan","Swallow-wort","Swinies","Sycamore","Tansy","Tassel","Tea","Thimbleberry","Thimbleweed","Thistle","Thousand-leaf","Thousand-seal","Thyme","Tickleweed","Tobacco","Toes","Tomato","Tongue","Toothwort","Touch-me-not","Track Plant","Tree","Trillium","Tulip","Tulsi","Viburnum","Vine","Violet","Violet Nightshade","Virgin\'s Bower","Wake Robin","Walnut","Waybread","Weed","Weeping Birch","Wheat","White-root","Wild Rose","Willow","Windroot","Wineberry","Winterberry","Wintercress","Woodbine","Wormwood","Woundwort","Yarrow","Yellowcress","Yellowwood","Zedoary","Zinnia"};
+    private String[] treenameA = {"Red", "Green", "Blue", "Purple", "Orange", "Yellow", "Violet", "Pink", "Gray", "Brown", "Cyan", "Crimson" , "Gold" , "Silver" , "Teal" , "Azure", "Turquoise", "Lavender", "Maroon", "Tan", "Magenta" , "Indigo" , "Jade" , "Scarlet", "Amber"};
+    private String[] treenameB = {"Acacia", "Aspen" , "Beech" , "Birch" , "Cedar" , "Cypress", "Ebony", "Elm" , "Eucalyptus", "Fir", "Grove" , "Hazel" ,  "Juniper" , "Maple", "Oak" , "Palm", "Poplar", "Pine" , "Sequoia" ,  "Spruce", "Sycamore", "Sylvan",  "Walnut", "Willow", "Yew"};
 
 
     private static final String TAG = AtlasConversationsList.class.getSimpleName();
@@ -216,9 +214,9 @@ public class AtlasConversationsList extends FrameLayout implements LayerChangeEv
 
 
         // inflate children:
-        LayoutInflater.from(getContext()).inflate(R.layout.atlas_conversations_list, this);
+        LayoutInflater.from(getContext()).inflate(com.layer.atlas.R.layout.atlas_conversations_list, this);
 
-        this.conversationsList = (ListView) findViewById(R.id.atlas_conversations_view);
+        this.conversationsList = (ListView) findViewById(com.layer.atlas.R.id.atlas_conversations_view);
         conversationsAdapter = new AtlasBaseSwipeAdapter(participantProvider);
         this.conversationsList.setAdapter(conversationsAdapter);
 
@@ -261,7 +259,7 @@ public class AtlasConversationsList extends FrameLayout implements LayerChangeEv
         applyStyle();
 
         updateValues();
-        mSwipeRefreshLayout=(SwipeRefreshLayout)findViewById(R.id.conversation_list_swipe_refresh_layout);
+        mSwipeRefreshLayout=(SwipeRefreshLayout)findViewById(com.layer.atlas.R.id.conversation_list_swipe_refresh_layout);
         mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
@@ -341,32 +339,32 @@ public class AtlasConversationsList extends FrameLayout implements LayerChangeEv
     }
 
     private void parseStyle(Context context, AttributeSet attrs, int defStyle) {
-        TypedArray ta = context.getTheme().obtainStyledAttributes(attrs, R.styleable.AtlasConversationList, R.attr.AtlasConversationList, defStyle);
-        this.titleTextColor = ta.getColor(R.styleable.AtlasConversationList_cellTitleTextColor, context.getResources().getColor(R.color.atlas_text_black));
-        this.titleTextStyle = ta.getInt(R.styleable.AtlasConversationList_cellTitleTextStyle, Typeface.NORMAL);
-        String titleTextTypefaceName = ta.getString(R.styleable.AtlasConversationList_cellTitleTextTypeface); 
+        TypedArray ta = context.getTheme().obtainStyledAttributes(attrs, com.layer.atlas.R.styleable.AtlasConversationList, com.layer.atlas.R.attr.AtlasConversationList, defStyle);
+        this.titleTextColor = ta.getColor(com.layer.atlas.R.styleable.AtlasConversationList_cellTitleTextColor, context.getResources().getColor(com.layer.atlas.R.color.atlas_text_black));
+        this.titleTextStyle = ta.getInt(com.layer.atlas.R.styleable.AtlasConversationList_cellTitleTextStyle, Typeface.NORMAL);
+        String titleTextTypefaceName = ta.getString(com.layer.atlas.R.styleable.AtlasConversationList_cellTitleTextTypeface);
         this.titleTextTypeface  = titleTextTypefaceName != null ? Typeface.create(titleTextTypefaceName, titleTextStyle) : null;
         
-        this.titleUnreadTextColor = ta.getColor(R.styleable.AtlasConversationList_cellTitleUnreadTextColor, context.getResources().getColor(R.color.atlas_text_black));
-        this.titleUnreadTextStyle = ta.getInt(R.styleable.AtlasConversationList_cellTitleUnreadTextStyle, Typeface.BOLD);
-        String titleUnreadTextTypefaceName = ta.getString(R.styleable.AtlasConversationList_cellTitleUnreadTextTypeface); 
+        this.titleUnreadTextColor = ta.getColor(com.layer.atlas.R.styleable.AtlasConversationList_cellTitleUnreadTextColor, context.getResources().getColor(com.layer.atlas.R.color.atlas_text_black));
+        this.titleUnreadTextStyle = ta.getInt(com.layer.atlas.R.styleable.AtlasConversationList_cellTitleUnreadTextStyle, Typeface.BOLD);
+        String titleUnreadTextTypefaceName = ta.getString(com.layer.atlas.R.styleable.AtlasConversationList_cellTitleUnreadTextTypeface);
         this.titleUnreadTextTypeface  = titleUnreadTextTypefaceName != null ? Typeface.create(titleUnreadTextTypefaceName, titleUnreadTextStyle) : null;
         
-        this.subtitleTextColor = ta.getColor(R.styleable.AtlasConversationList_cellSubtitleTextColor, context.getResources().getColor(R.color.atlas_text_black));
-        this.subtitleTextStyle = ta.getInt(R.styleable.AtlasConversationList_cellSubtitleTextStyle, Typeface.NORMAL);
-        String subtitleTextTypefaceName = ta.getString(R.styleable.AtlasConversationList_cellSubtitleTextTypeface); 
+        this.subtitleTextColor = ta.getColor(com.layer.atlas.R.styleable.AtlasConversationList_cellSubtitleTextColor, context.getResources().getColor(com.layer.atlas.R.color.atlas_text_black));
+        this.subtitleTextStyle = ta.getInt(com.layer.atlas.R.styleable.AtlasConversationList_cellSubtitleTextStyle, Typeface.NORMAL);
+        String subtitleTextTypefaceName = ta.getString(com.layer.atlas.R.styleable.AtlasConversationList_cellSubtitleTextTypeface);
         this.subtitleTextTypeface  = subtitleTextTypefaceName != null ? Typeface.create(subtitleTextTypefaceName, subtitleTextStyle) : null;
         
-        this.subtitleUnreadTextColor = ta.getColor(R.styleable.AtlasConversationList_cellSubtitleUnreadTextColor, context.getResources().getColor(R.color.atlas_text_black));
-        this.subtitleUnreadTextStyle = ta.getInt(R.styleable.AtlasConversationList_cellSubtitleUnreadTextStyle, Typeface.NORMAL);
-        String subtitleUnreadTextTypefaceName = ta.getString(R.styleable.AtlasConversationList_cellSubtitleUnreadTextTypeface); 
+        this.subtitleUnreadTextColor = ta.getColor(com.layer.atlas.R.styleable.AtlasConversationList_cellSubtitleUnreadTextColor, context.getResources().getColor(com.layer.atlas.R.color.atlas_text_black));
+        this.subtitleUnreadTextStyle = ta.getInt(com.layer.atlas.R.styleable.AtlasConversationList_cellSubtitleUnreadTextStyle, Typeface.NORMAL);
+        String subtitleUnreadTextTypefaceName = ta.getString(com.layer.atlas.R.styleable.AtlasConversationList_cellSubtitleUnreadTextTypeface);
         this.subtitleUnreadTextTypeface  = subtitleUnreadTextTypefaceName != null ? Typeface.create(subtitleUnreadTextTypefaceName, subtitleUnreadTextStyle) : null;
         
-        this.cellBackgroundColor = ta.getColor(R.styleable.AtlasConversationList_cellBackgroundColor, Color.TRANSPARENT); 
-        this.cellUnreadBackgroundColor = ta.getColor(R.styleable.AtlasConversationList_cellUnreadBackgroundColor, Color.TRANSPARENT); 
-        this.dateTextColor = ta.getColor(R.styleable.AtlasConversationList_dateTextColor, context.getResources().getColor(R.color.atlas_text_black)); 
-        this.avatarTextColor = ta.getColor(R.styleable.AtlasConversationList_avatarTextColor, context.getResources().getColor(R.color.atlas_text_black)); 
-        this.avatarBackgroundColor = ta.getColor(R.styleable.AtlasConversationList_avatarBackgroundColor, context.getResources().getColor(R.color.atlas_shape_avatar_gray));
+        this.cellBackgroundColor = ta.getColor(com.layer.atlas.R.styleable.AtlasConversationList_cellBackgroundColor, Color.TRANSPARENT);
+        this.cellUnreadBackgroundColor = ta.getColor(com.layer.atlas.R.styleable.AtlasConversationList_cellUnreadBackgroundColor, Color.TRANSPARENT);
+        this.dateTextColor = ta.getColor(com.layer.atlas.R.styleable.AtlasConversationList_dateTextColor, context.getResources().getColor(com.layer.atlas.R.color.atlas_text_black));
+        this.avatarTextColor = ta.getColor(com.layer.atlas.R.styleable.AtlasConversationList_avatarTextColor, context.getResources().getColor(com.layer.atlas.R.color.atlas_text_black));
+        this.avatarBackgroundColor = ta.getColor(com.layer.atlas.R.styleable.AtlasConversationList_avatarBackgroundColor, context.getResources().getColor(com.layer.atlas.R.color.atlas_shape_avatar_gray));
         ta.recycle();
     }
     
@@ -382,8 +380,8 @@ public class AtlasConversationsList extends FrameLayout implements LayerChangeEv
         cal.set(Calendar.MINUTE, 0);
         cal.set(Calendar.SECOND, 0);
         long todayMidnight = cal.getTimeInMillis();
-        long yesterMidnight = todayMidnight - Tools.TIME_HOURS_24;
-        long weekAgoMidnight = todayMidnight - Tools.TIME_HOURS_24 * 7;
+        long yesterMidnight = todayMidnight - Atlas.Tools.TIME_HOURS_24;
+        long weekAgoMidnight = todayMidnight - Atlas.Tools.TIME_HOURS_24 * 7;
         
         String timeText = null;
         if (sentAt.getTime() > todayMidnight) {
@@ -392,7 +390,7 @@ public class AtlasConversationsList extends FrameLayout implements LayerChangeEv
             timeText = "Yesterday";
         } else if (sentAt.getTime() > weekAgoMidnight){
             cal.setTime(sentAt);
-            timeText = Tools.TIME_WEEKDAYS_NAMES[cal.get(Calendar.DAY_OF_WEEK) - 1];
+            timeText = Atlas.Tools.TIME_WEEKDAYS_NAMES[cal.get(Calendar.DAY_OF_WEEK) - 1];
         } else {
             timeText = dateFormat.format(sentAt);
         }
@@ -446,10 +444,10 @@ public class AtlasConversationsList extends FrameLayout implements LayerChangeEv
 
         }
         public int getSwipeLayoutResourceId(int position) {
-            return R.id.swipeconversationlistitem;
+            return com.layer.atlas.R.id.swipeconversationlistitem;
         }
         public View generateView(int position, ViewGroup parent) {
-            return LayoutInflater.from(parent.getContext()).inflate(R.layout.atlas_view_conversations_list_convert, parent, false);
+            return LayoutInflater.from(parent.getContext()).inflate(com.layer.atlas.R.layout.atlas_view_conversations_list_convert, parent, false);
         }
         public void fillValues(final int position, View convertView) {
 
@@ -459,15 +457,15 @@ public class AtlasConversationsList extends FrameLayout implements LayerChangeEv
             ArrayList<String> allButMe = new ArrayList<String>(conv.getParticipants());
             allButMe.remove(layerClient.getAuthenticatedUserId());
 
-            TextView textTitle = (TextView) convertView.findViewById(R.id.atlas_conversation_view_convert_participant);
+            TextView textTitle = (TextView) convertView.findViewById(com.layer.atlas.R.id.atlas_conversation_view_convert_participant);
             String conversationTitle = Atlas.getTitle(conv, participantProvider, layerClient.getAuthenticatedUserId());
             textTitle.setText(conversationTitle);
 
             // avatar icons...
-            TextView textInitials = (TextView) convertView.findViewById(R.id.atlas_view_conversations_list_convert_avatar_single_text);
-            View avatarSingle = convertView.findViewById(R.id.atlas_view_conversations_list_convert_avatar_single);
-            View avatarMulti = convertView.findViewById(R.id.atlas_view_conversations_list_convert_avatar_multi);
-            ImageView imageView = (ImageView)convertView.findViewById(R.id.atlas_view_conversations_list_convert_avatar_single_image);
+            TextView textInitials = (TextView) convertView.findViewById(com.layer.atlas.R.id.atlas_view_conversations_list_convert_avatar_single_text);
+            View avatarSingle = convertView.findViewById(com.layer.atlas.R.id.atlas_view_conversations_list_convert_avatar_single);
+            View avatarMulti = convertView.findViewById(com.layer.atlas.R.id.atlas_view_conversations_list_convert_avatar_multi);
+            ImageView imageView = (ImageView)convertView.findViewById(com.layer.atlas.R.id.atlas_view_conversations_list_convert_avatar_single_image);
             if (allButMe.size() < 3 && allButMe.contains("1")) {
                 String conterpartyUserId = allButMe.get(0);
                 Atlas.Participant participant = participantProvider.getParticipant(conterpartyUserId);
@@ -515,11 +513,11 @@ public class AtlasConversationsList extends FrameLayout implements LayerChangeEv
                 avatarMulti.setVisibility(View.GONE);
 
             } else {
-                Participant leftParticipant = null;
-                Participant rightParticipant = null;
+                Atlas.Participant leftParticipant = null;
+                Atlas.Participant rightParticipant = null;
                 for (Iterator<String> itUserId = allButMe.iterator(); itUserId.hasNext();) {
                     String userId = itUserId.next();
-                    Participant p = participantProvider.getParticipant(userId);
+                    Atlas.Participant p = participantProvider.getParticipant(userId);
                     if (p == null) continue;
 
                     if (leftParticipant == null) {
@@ -530,12 +528,12 @@ public class AtlasConversationsList extends FrameLayout implements LayerChangeEv
                     }
                 }
 
-                TextView textInitialsLeft = (TextView) convertView.findViewById(R.id.atlas_view_conversations_list_convert_avatar_multi_left);
+                TextView textInitialsLeft = (TextView) convertView.findViewById(com.layer.atlas.R.id.atlas_view_conversations_list_convert_avatar_multi_left);
                 textInitialsLeft.setText(leftParticipant == null ? "?" : Atlas.getInitials(leftParticipant));
                 textInitialsLeft.setTextColor(avatarTextColor);
                 ((GradientDrawable) textInitialsLeft.getBackground()).setColor(avatarBackgroundColor);
 
-                TextView textInitialsRight = (TextView) convertView.findViewById(R.id.atlas_view_conversations_list_convert_avatar_multi_right);
+                TextView textInitialsRight = (TextView) convertView.findViewById(com.layer.atlas.R.id.atlas_view_conversations_list_convert_avatar_multi_right);
                 textInitialsRight.setText(rightParticipant == null ? "?" : Atlas.getInitials(rightParticipant));
                 textInitialsRight.setTextColor(avatarTextColor);
                 ((GradientDrawable) textInitialsRight.getBackground()).setColor(avatarBackgroundColor);
@@ -544,8 +542,8 @@ public class AtlasConversationsList extends FrameLayout implements LayerChangeEv
                 avatarMulti.setVisibility(View.VISIBLE);
             }
 
-            TextView textLastMessage = (TextView) convertView.findViewById(R.id.atlas_conversation_view_last_message);
-            TextView timeView = (TextView) convertView.findViewById(R.id.atlas_conversation_view_convert_time);
+            TextView textLastMessage = (TextView) convertView.findViewById(com.layer.atlas.R.id.atlas_conversation_view_last_message);
+            TextView timeView = (TextView) convertView.findViewById(com.layer.atlas.R.id.atlas_conversation_view_convert_time);
             if (conv.getLastMessage() != null ) {
                 Message last = conv.getLastMessage();
                 String lastMessageText = Atlas.Tools.toString(last);
@@ -581,10 +579,10 @@ public class AtlasConversationsList extends FrameLayout implements LayerChangeEv
                 convertView.setBackgroundColor(cellBackgroundColor);
             }
             timeView.setTextColor(dateTextColor);
-            swipeLayout =  (SwipeLayout)convertView.findViewById(R.id.swipeconversationlistitem);
+            swipeLayout =  (SwipeLayout)convertView.findViewById(com.layer.atlas.R.id.swipeconversationlistitem);
             swipeLayout.setShowMode(SwipeLayout.ShowMode.PullOut);
-            swipeLayout.addDrag(SwipeLayout.DragEdge.Left, convertView.findViewById(R.id.bottom_wrapper));
-            ImageView trash= (ImageView)convertView.findViewById(R.id.trash);
+            swipeLayout.addDrag(SwipeLayout.DragEdge.Left, convertView.findViewById(com.layer.atlas.R.id.bottom_wrapper));
+            ImageView trash= (ImageView)convertView.findViewById(com.layer.atlas.R.id.trash);
             trash.setOnClickListener(new OnClickListener() {
                 @Override
                 public void onClick(View view) {

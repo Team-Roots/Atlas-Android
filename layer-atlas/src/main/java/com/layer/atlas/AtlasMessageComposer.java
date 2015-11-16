@@ -84,11 +84,11 @@ public class AtlasMessageComposer extends FrameLayout {
     }
     
     public void parseStyle(Context context, AttributeSet attrs, int defStyle) {
-        TypedArray ta = context.getTheme().obtainStyledAttributes(attrs, R.styleable.AtlasMessageComposer, R.attr.AtlasMessageComposer, defStyle);
-        this.textColor = ta.getColor(R.styleable.AtlasMessageComposer_textColor, context.getResources().getColor(R.color.atlas_text_black));
+        TypedArray ta = context.getTheme().obtainStyledAttributes(attrs, com.layer.atlas.R.styleable.AtlasMessageComposer, com.layer.atlas.R.attr.AtlasMessageComposer, defStyle);
+        this.textColor = ta.getColor(com.layer.atlas.R.styleable.AtlasMessageComposer_textColor, context.getResources().getColor(com.layer.atlas.R.color.atlas_text_black));
         //this.textSize  = ta.getDimension(R.styleable.AtlasMessageComposer_textSize, context.getResources().getDimension(R.dimen.atlas_text_size_general));
-        this.textStyle = ta.getInt(R.styleable.AtlasMessageComposer_textStyle, Typeface.NORMAL);
-        String typeFaceName = ta.getString(R.styleable.AtlasMessageComposer_textTypeface); 
+        this.textStyle = ta.getInt(com.layer.atlas.R.styleable.AtlasMessageComposer_textStyle, Typeface.NORMAL);
+        String typeFaceName = ta.getString(com.layer.atlas.R.styleable.AtlasMessageComposer_textTypeface);
         this.typeFace  = typeFaceName != null ? Typeface.create(typeFaceName, textStyle) : null;
         ta.recycle();
     }
@@ -109,20 +109,20 @@ public class AtlasMessageComposer extends FrameLayout {
         this.layerClient = client;
         this.conv = conversation;
         this.accountType=accountType;
-        LayoutInflater.from(getContext()).inflate(R.layout.atlas_message_composer, this);
+        LayoutInflater.from(getContext()).inflate(com.layer.atlas.R.layout.atlas_message_composer, this);
         
-        btnUpload = findViewById(R.id.atlas_message_composer_upload);
+        btnUpload = findViewById(com.layer.atlas.R.id.atlas_message_composer_upload);
         btnUpload.setOnClickListener(new OnClickListener() {
             public void onClick(View v) {
                 final PopupWindow popupWindow = new PopupWindow(v.getContext());
                 popupWindow.setWindowLayoutMode(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
                 LayoutInflater inflater = LayoutInflater.from(v.getContext());
-                LinearLayout menu = (LinearLayout) inflater.inflate(R.layout.atlas_view_message_composer_menu, null);
+                LinearLayout menu = (LinearLayout) inflater.inflate(com.layer.atlas.R.layout.atlas_view_message_composer_menu, null);
                 popupWindow.setContentView(menu);
 
                 for (MenuItem item : menuItems) {
-                    View itemConvert = inflater.inflate(R.layout.atlas_view_message_composer_menu_convert, menu, false);
-                    TextView titleText = ((TextView) itemConvert.findViewById(R.id.altas_view_message_composer_convert_text));
+                    View itemConvert = inflater.inflate(com.layer.atlas.R.layout.atlas_view_message_composer_menu_convert, menu, false);
+                    TextView titleText = ((TextView) itemConvert.findViewById(com.layer.atlas.R.id.altas_view_message_composer_convert_text));
                     titleText.setText(item.title);
                     itemConvert.setTag(item);
                     itemConvert.setOnClickListener(new OnClickListener() {
@@ -147,7 +147,7 @@ public class AtlasMessageComposer extends FrameLayout {
             }
         });
         
-        messageText = (EditText) findViewById(R.id.atlas_message_composer_text);
+        messageText = (EditText) findViewById(com.layer.atlas.R.id.atlas_message_composer_text);
         messageText.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
@@ -170,7 +170,7 @@ public class AtlasMessageComposer extends FrameLayout {
             }
         });
         
-        btnSend = findViewById(R.id.atlas_message_composer_send);
+        btnSend = findViewById(com.layer.atlas.R.id.atlas_message_composer_send);
         btnSend.setOnClickListener(new OnClickListener() {
             public void onClick(View v) {
                 
@@ -201,13 +201,15 @@ public class AtlasMessageComposer extends FrameLayout {
                 parts.add(layerClient.newMessagePart(line));
             }
             MessageOptions options = new MessageOptions();
+            if(conv!=null) {
+                if (accountType == 1) {
+                    options.pushNotificationMessage((String) conv.getMetadata().get("counselor.name") + "," + (String) conv.getMetadata().get("counselor.avatarString") + "," + text);
 
-
-            if(accountType==1) {
-                options.pushNotificationMessage((String) conv.getMetadata().get("student.name") + "," + (String) conv.getMetadata().get("student.avatarString") + "," + text);
-
+                } else {
+                    options.pushNotificationMessage((String) conv.getMetadata().get("student.name") + "," + (String) conv.getMetadata().get("student.avatarString") + "," + text);
+                }
             } else {
-                options.pushNotificationMessage((String) conv.getMetadata().get("counselor.name") + "," + (String) conv.getMetadata().get("counselor.avatarString") + "," + text);
+                options.pushNotificationMessage(text);
             }
 
             Message msg = layerClient.newMessage(options, parts);

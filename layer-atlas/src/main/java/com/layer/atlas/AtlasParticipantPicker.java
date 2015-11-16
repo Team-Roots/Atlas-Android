@@ -44,9 +44,6 @@ import android.widget.FrameLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import com.layer.atlas.Atlas.Participant;
-import com.layer.atlas.Atlas.ParticipantProvider;
-
 /**
  * @author Oleg Orlov
  * @since 27 Apr 2015
@@ -62,10 +59,10 @@ public class AtlasParticipantPicker extends FrameLayout {
     private ListView participantsList;
     private ViewGroup selectedParticipantsContainer;
 
-    private ParticipantProvider participantProvider;
+    private Atlas.ParticipantProvider participantProvider;
 
     private TreeSet<String> skipUserIds = new TreeSet<String>();
-    private final Map<String, Participant> filteredParticipants = new HashMap<String, Participant>();
+    private final Map<String, Atlas.Participant> filteredParticipants = new HashMap<String, Atlas.Participant>();
     private ArrayList<String> selectedParticipantIds = new ArrayList<String>();
     private final ArrayList<ParticipantEntry> participantsForAdapter = new ArrayList<ParticipantEntry>();
 
@@ -96,27 +93,27 @@ public class AtlasParticipantPicker extends FrameLayout {
         super(context);
     }
 
-    public void init(String[] userIdToSkip, ParticipantProvider participantProvider) {
+    public void init(String[] userIdToSkip, Atlas.ParticipantProvider participantProvider) {
         if (participantProvider == null) throw new IllegalArgumentException("ParticipantProvider cannot be null");
         if (participantsList != null) throw new IllegalStateException("AtlasParticipantPicker is already initialized!");
         
-        LayoutInflater.from(getContext()).inflate(R.layout.atlas_participants_picker, this);
+        LayoutInflater.from(getContext()).inflate(com.layer.atlas.R.layout.atlas_participants_picker, this);
 
         this.participantProvider = participantProvider;
         if (userIdToSkip != null) skipUserIds.addAll(Arrays.asList(userIdToSkip));
         
         // START OF -------------------- Participant Picker ----------------------------------------
         this.rootView = this;
-        textFilter = (EditText) rootView.findViewById(R.id.atlas_participants_picker_text);
-        participantsList = (ListView) rootView.findViewById(R.id.atlas_participants_picker_list);
-        selectedParticipantsContainer = (ViewGroup) rootView.findViewById(R.id.atlas_participants_picker_names);
+        textFilter = (EditText) rootView.findViewById(com.layer.atlas.R.id.atlas_participants_picker_text);
+        participantsList = (ListView) rootView.findViewById(com.layer.atlas.R.id.atlas_participants_picker_list);
+        selectedParticipantsContainer = (ViewGroup) rootView.findViewById(com.layer.atlas.R.id.atlas_participants_picker_names);
 
         if (rootView.getVisibility() == View.VISIBLE) {
             textFilter.requestFocus();
         }
 
         // log focuses
-        final View scroller = rootView.findViewById(R.id.atlas_participants_picker_scroll);
+        final View scroller = rootView.findViewById(com.layer.atlas.R.id.atlas_participants_picker_scroll);
         scroller.setOnFocusChangeListener(new OnFocusChangeListener() {
             @Override
             public void onFocusChange(View v, boolean hasFocus) {
@@ -170,11 +167,11 @@ public class AtlasParticipantPicker extends FrameLayout {
         participantsList.setAdapter(participantsAdapter = new BaseAdapter() {
             public View getView(int position, View convertView, ViewGroup parent) {
                 if (convertView == null) {
-                    convertView = LayoutInflater.from(parent.getContext()).inflate(R.layout.atlas_view_participants_picker_convert, parent, false);
+                    convertView = LayoutInflater.from(parent.getContext()).inflate(com.layer.atlas.R.layout.atlas_view_participants_picker_convert, parent, false);
                 }
 
-                TextView name = (TextView) convertView.findViewById(R.id.atlas_view_participants_picker_convert_name);
-                TextView avatarText = (TextView) convertView.findViewById(R.id.atlas_view_participants_picker_convert_ava);
+                TextView name = (TextView) convertView.findViewById(com.layer.atlas.R.id.atlas_view_participants_picker_convert_name);
+                TextView avatarText = (TextView) convertView.findViewById(com.layer.atlas.R.id.atlas_view_participants_picker_convert_ava);
                 ParticipantEntry entry = participantsForAdapter.get(position);
 
                 if (entry != null) {
@@ -268,12 +265,12 @@ public class AtlasParticipantPicker extends FrameLayout {
         }
         if (debug) Log.w(TAG, "refreshParticipants() childs left: " + selectedParticipantsContainer.getChildCount());
         for (String id : selectedParticipantIds) {
-            Participant entry = participantProvider.getParticipant(id);
-            View participantView = LayoutInflater.from(selectedParticipantsContainer.getContext()).inflate(R.layout.atlas_view_participants_picker_name_convert, selectedParticipantsContainer, false);
+            Atlas.Participant entry = participantProvider.getParticipant(id);
+            View participantView = LayoutInflater.from(selectedParticipantsContainer.getContext()).inflate(com.layer.atlas.R.layout.atlas_view_participants_picker_name_convert, selectedParticipantsContainer, false);
 
-            TextView avaText = (TextView) participantView.findViewById(R.id.atlas_view_participants_picker_name_convert_ava);
+            TextView avaText = (TextView) participantView.findViewById(com.layer.atlas.R.id.atlas_view_participants_picker_name_convert_ava);
             avaText.setText(Atlas.getInitials(entry));
-            TextView nameText = (TextView) participantView.findViewById(R.id.atlas_view_participants_picker_name_convert_name);
+            TextView nameText = (TextView) participantView.findViewById(com.layer.atlas.R.id.atlas_view_participants_picker_name_convert_name);
             nameText.setText(Atlas.getFullName(entry));
             participantView.setTag(entry);
 
@@ -285,7 +282,7 @@ public class AtlasParticipantPicker extends FrameLayout {
             avaText.setTypeface(chipTextTypeface, chipTextStyle);
             nameText.setTextColor(chipTextColor);
             nameText.setTypeface(chipTextTypeface, chipTextStyle);
-            View container = participantView.findViewById(R.id.atlas_view_participants_picker_name_convert);
+            View container = participantView.findViewById(com.layer.atlas.R.id.atlas_view_participants_picker_name_convert);
             GradientDrawable drawable = (GradientDrawable) container.getBackground();
             drawable.setColor(chipBackgroundColor);
             
@@ -302,7 +299,7 @@ public class AtlasParticipantPicker extends FrameLayout {
         participantProvider.getParticipants(filter, filteredParticipants);
         if (debug) Log.w(TAG, "filterParticipants() filtered: " + filteredParticipants.size() + ", filter: " + filter);
         participantsForAdapter.clear();
-        for (Map.Entry<String, Participant> entry : filteredParticipants.entrySet()) {
+        for (Map.Entry<String, Atlas.Participant> entry : filteredParticipants.entrySet()) {
             if (selectedParticipantIds.contains(entry.getKey())) continue;
             if (skipUserIds.contains(entry.getKey())) continue;
             participantsForAdapter.add(new ParticipantEntry(entry.getValue(), entry.getKey()));
@@ -313,21 +310,21 @@ public class AtlasParticipantPicker extends FrameLayout {
     }
 
     private void parseStyle(Context context, AttributeSet attrs, int defStyle) {
-        TypedArray ta = context.getTheme().obtainStyledAttributes(attrs, R.styleable.AtlasParticipantPicker, R.attr.AtlasParticipantPicker, defStyle);
-        this.inputTextColor = ta.getColor(R.styleable.AtlasParticipantPicker_inputTextColor, context.getResources().getColor(R.color.atlas_text_black));
-        this.inputTextStyle = ta.getInt(R.styleable.AtlasParticipantPicker_inputTextStyle, Typeface.NORMAL);
-        String inputTextTypefaceName = ta.getString(R.styleable.AtlasParticipantPicker_inputTextTypeface); 
+        TypedArray ta = context.getTheme().obtainStyledAttributes(attrs, com.layer.atlas.R.styleable.AtlasParticipantPicker, com.layer.atlas.R.attr.AtlasParticipantPicker, defStyle);
+        this.inputTextColor = ta.getColor(com.layer.atlas.R.styleable.AtlasParticipantPicker_inputTextColor, context.getResources().getColor(com.layer.atlas.R.color.atlas_text_black));
+        this.inputTextStyle = ta.getInt(com.layer.atlas.R.styleable.AtlasParticipantPicker_inputTextStyle, Typeface.NORMAL);
+        String inputTextTypefaceName = ta.getString(com.layer.atlas.R.styleable.AtlasParticipantPicker_inputTextTypeface);
         this.inputTextTypeface  = inputTextTypefaceName != null ? Typeface.create(inputTextTypefaceName, inputTextStyle) : null;
         
-        this.listTextColor = ta.getColor(R.styleable.AtlasParticipantPicker_listTextColor, context.getResources().getColor(R.color.atlas_text_black));
-        this.listTextStyle = ta.getInt(R.styleable.AtlasParticipantPicker_listTextStyle, Typeface.NORMAL);
-        String listTextTypefaceName = ta.getString(R.styleable.AtlasParticipantPicker_listTextTypeface); 
+        this.listTextColor = ta.getColor(com.layer.atlas.R.styleable.AtlasParticipantPicker_listTextColor, context.getResources().getColor(com.layer.atlas.R.color.atlas_text_black));
+        this.listTextStyle = ta.getInt(com.layer.atlas.R.styleable.AtlasParticipantPicker_listTextStyle, Typeface.NORMAL);
+        String listTextTypefaceName = ta.getString(com.layer.atlas.R.styleable.AtlasParticipantPicker_listTextTypeface);
         this.listTextTypeface  = listTextTypefaceName != null ? Typeface.create(listTextTypefaceName, inputTextStyle) : null;
         
-        this.chipBackgroundColor = ta.getColor(R.styleable.AtlasParticipantPicker_chipBackgroundColor, context.getResources().getColor(R.color.atlas_background_gray)); 
-        this.chipTextColor = ta.getColor(R.styleable.AtlasParticipantPicker_chipTextColor, context.getResources().getColor(R.color.atlas_text_black)); 
-        this.chipTextStyle = ta.getInt(R.styleable.AtlasParticipantPicker_chipTextStyle, Typeface.NORMAL);
-        String chipTextTypefaceName = ta.getString(R.styleable.AtlasParticipantPicker_chipTextTypeface); 
+        this.chipBackgroundColor = ta.getColor(com.layer.atlas.R.styleable.AtlasParticipantPicker_chipBackgroundColor, context.getResources().getColor(com.layer.atlas.R.color.atlas_background_gray));
+        this.chipTextColor = ta.getColor(com.layer.atlas.R.styleable.AtlasParticipantPicker_chipTextColor, context.getResources().getColor(com.layer.atlas.R.color.atlas_text_black));
+        this.chipTextStyle = ta.getInt(com.layer.atlas.R.styleable.AtlasParticipantPicker_chipTextStyle, Typeface.NORMAL);
+        String chipTextTypefaceName = ta.getString(com.layer.atlas.R.styleable.AtlasParticipantPicker_chipTextTypeface);
         this.chipTextTypeface  = chipTextTypefaceName != null ? Typeface.create(chipTextTypefaceName, inputTextStyle) : null;
         ta.recycle();
     }
@@ -355,7 +352,7 @@ public class AtlasParticipantPicker extends FrameLayout {
         }
     }
 
-    private static final class FilteringComparator implements Comparator<Participant> {
+    private static final class FilteringComparator implements Comparator<Atlas.Participant> {
         private final String filter;
 
         /**
@@ -366,7 +363,7 @@ public class AtlasParticipantPicker extends FrameLayout {
         }
 
         @Override
-        public int compare(Participant lhs, Participant rhs) {
+        public int compare(Atlas.Participant lhs, Atlas.Participant rhs) {
             int result = subCompareCaseInsensitive(lhs.getFirstName(), rhs.getFirstName());
             if (result != 0) return result;
             return subCompareCaseInsensitive(lhs.getLastName(), rhs.getLastName());
@@ -398,10 +395,10 @@ public class AtlasParticipantPicker extends FrameLayout {
     }
     
     private static class ParticipantEntry {
-        final Participant participant;
+        final Atlas.Participant participant;
         final String id;
 
-        public ParticipantEntry(Participant participant, String id) {
+        public ParticipantEntry(Atlas.Participant participant, String id) {
             if (participant == null) throw new IllegalArgumentException("Participant cannot be null");
             if (id == null) throw new IllegalArgumentException("ID cannot be null");
             this.participant = participant;

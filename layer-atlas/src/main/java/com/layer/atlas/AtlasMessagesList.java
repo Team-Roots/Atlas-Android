@@ -41,11 +41,6 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import com.layer.atlas.Atlas.ImageLoader;
-import com.layer.atlas.Atlas.ImageLoader.BitmapLoadListener;
-import com.layer.atlas.Atlas.ImageLoader.ImageSpec;
-import com.layer.atlas.Atlas.ImageLoader.MessagePartStreamProvider;
-import com.layer.atlas.Atlas.Tools;
 import com.layer.sdk.LayerClient;
 import com.layer.sdk.changes.LayerChange;
 import com.layer.sdk.changes.LayerChange.Type;
@@ -184,10 +179,10 @@ public class AtlasMessagesList extends FrameLayout implements LayerChangeEventLi
 
 
 
-        LayoutInflater.from(getContext()).inflate(R.layout.atlas_messages_list, this);
+        LayoutInflater.from(getContext()).inflate(com.layer.atlas.R.layout.atlas_messages_list, this);
         
         // --- message view
-        messagesList = (ListView) findViewById(R.id.atlas_messages_list);
+        messagesList = (ListView) findViewById(com.layer.atlas.R.id.atlas_messages_list);
         messagesList.setAdapter(messagesAdapter = new BaseAdapter() {
             
             public View getView(int position, View convertView, ViewGroup parent) {
@@ -198,19 +193,19 @@ public class AtlasMessagesList extends FrameLayout implements LayerChangeEventLi
                 boolean myMessage = client.getAuthenticatedUserId().equals(userId);
                 
                 if (convertView == null) { 
-                    convertView = LayoutInflater.from(parent.getContext()).inflate(R.layout.atlas_view_messages_convert, parent, false);
+                    convertView = LayoutInflater.from(parent.getContext()).inflate(com.layer.atlas.R.layout.atlas_view_messages_convert, parent, false);
                 }
                 
-                View spacerTop = convertView.findViewById(R.id.atlas_view_messages_convert_spacer_top);
+                View spacerTop = convertView.findViewById(com.layer.atlas.R.id.atlas_view_messages_convert_spacer_top);
                 spacerTop.setVisibility(cell.clusterItemId == cell.clusterHeadItemId && !cell.timeHeader ? View.VISIBLE : View.GONE); 
                 
-                View spacerBottom = convertView.findViewById(R.id.atlas_view_messages_convert_spacer_bottom);
+                View spacerBottom = convertView.findViewById(com.layer.atlas.R.id.atlas_view_messages_convert_spacer_bottom);
                 spacerBottom.setVisibility(cell.clusterTail ? View.VISIBLE : View.GONE); 
                 
                 // format date
-                View timeBar = convertView.findViewById(R.id.atlas_view_messages_convert_timebar);
-                TextView timeBarDay = (TextView) convertView.findViewById(R.id.atlas_view_messages_convert_timebar_day);
-                TextView timeBarTime = (TextView) convertView.findViewById(R.id.atlas_view_messages_convert_timebar_time);
+                View timeBar = convertView.findViewById(com.layer.atlas.R.id.atlas_view_messages_convert_timebar);
+                TextView timeBarDay = (TextView) convertView.findViewById(com.layer.atlas.R.id.atlas_view_messages_convert_timebar_day);
+                TextView timeBarTime = (TextView) convertView.findViewById(com.layer.atlas.R.id.atlas_view_messages_convert_timebar_time);
                 if (cell.timeHeader) {
 
                     Calendar cal = Calendar.getInstance();
@@ -218,8 +213,8 @@ public class AtlasMessagesList extends FrameLayout implements LayerChangeEventLi
                     cal.set(Calendar.MINUTE, 0);
                     cal.set(Calendar.SECOND, 0);
                     long todayMidnight = cal.getTimeInMillis();
-                    long yesterMidnight = todayMidnight - Tools.TIME_HOURS_24;
-                    long weekAgoMidnight = todayMidnight - Tools.TIME_HOURS_24 * 7;
+                    long yesterMidnight = todayMidnight - Atlas.Tools.TIME_HOURS_24;
+                    long weekAgoMidnight = todayMidnight - Atlas.Tools.TIME_HOURS_24 * 7;
                     Date sentAt = cell.messagePart.getMessage().getSentAt();
                     if (sentAt == null) sentAt = new Date();
                     
@@ -231,9 +226,9 @@ public class AtlasMessagesList extends FrameLayout implements LayerChangeEventLi
                         timeBarDayText = "Yesterday";
                     } else if (sentAt.getTime() > weekAgoMidnight) {
                         cal.setTime(sentAt);
-                        timeBarDayText = Tools.TIME_WEEKDAYS_NAMES[cal.get(Calendar.DAY_OF_WEEK) - 1];
+                        timeBarDayText = Atlas.Tools.TIME_WEEKDAYS_NAMES[cal.get(Calendar.DAY_OF_WEEK) - 1];
                     } else {
-                        timeBarDayText = Tools.sdfDayOfWeek.format(sentAt);
+                        timeBarDayText = Atlas.Tools.sdfDayOfWeek.format(sentAt);
                     }
                     timeBarDay.setText(timeBarDayText);
                     timeBarTime.setText(timeBarTimeText);
@@ -242,9 +237,9 @@ public class AtlasMessagesList extends FrameLayout implements LayerChangeEventLi
                     timeBar.setVisibility(View.GONE);
                 }
                 
-                TextView textAvatar = (TextView) convertView.findViewById(R.id.atlas_view_messages_convert_initials);
-                ImageView imageViewAvatar= (ImageView)convertView.findViewById(R.id.atlas_view_nessages_convert_avatar_image);
-                View spacerRight = convertView.findViewById(R.id.atlas_view_messages_convert_spacer_right);
+                TextView textAvatar = (TextView) convertView.findViewById(com.layer.atlas.R.id.atlas_view_messages_convert_initials);
+                ImageView imageViewAvatar= (ImageView)convertView.findViewById(com.layer.atlas.R.id.atlas_view_nessages_convert_avatar_image);
+                View spacerRight = convertView.findViewById(com.layer.atlas.R.id.atlas_view_messages_convert_spacer_right);
                 if (myMessage) {
                     spacerRight.setVisibility(View.GONE);
                     textAvatar.setVisibility(View.INVISIBLE);
@@ -279,12 +274,12 @@ public class AtlasMessagesList extends FrameLayout implements LayerChangeEventLi
                 }
                 
                 // mark unsent messages
-                View cellContainer = convertView.findViewById(R.id.atlas_view_messages_cell_container);
+                View cellContainer = convertView.findViewById(com.layer.atlas.R.id.atlas_view_messages_cell_container);
                 cellContainer.setAlpha((myMessage && !cell.messagePart.getMessage().isSent()) 
                         ? CELL_CONTAINER_ALPHA_UNSENT : CELL_CONTAINER_ALPHA_SENT);
                 
                 // delivery receipt check
-                TextView receiptView = (TextView) convertView.findViewById(R.id.atlas_view_messages_convert_delivery_receipt);
+                TextView receiptView = (TextView) convertView.findViewById(com.layer.atlas.R.id.atlas_view_messages_convert_delivery_receipt);
                 receiptView.setVisibility(View.GONE);
                 if (latestDeliveredMessage != null && latestDeliveredMessage.getId().equals(cell.messagePart.getMessage().getId())) {
                     receiptView.setVisibility(View.VISIBLE);
@@ -314,7 +309,7 @@ public class AtlasMessagesList extends FrameLayout implements LayerChangeEventLi
             
             private void bindCell(View convertView, final Cell cell) {
                 
-                ViewGroup cellContainer = (ViewGroup) convertView.findViewById(R.id.atlas_view_messages_cell_container);
+                ViewGroup cellContainer = (ViewGroup) convertView.findViewById(com.layer.atlas.R.id.atlas_view_messages_cell_container);
                 
                 View cellRootView = cell.onBind(cellContainer);
                 boolean alreadyInContainer = false;
@@ -359,25 +354,25 @@ public class AtlasMessagesList extends FrameLayout implements LayerChangeEventLi
     }
     
     public void parseStyle(Context context, AttributeSet attrs, int defStyle) {
-        TypedArray ta = context.getTheme().obtainStyledAttributes(attrs, R.styleable.AtlasMessageList, R.attr.AtlasMessageList, defStyle);
-        this.myTextColor = ta.getColor(R.styleable.AtlasMessageList_myTextColor, context.getResources().getColor(R.color.atlas_text_black));
-        this.myTextStyle = ta.getInt(R.styleable.AtlasMessageList_myTextStyle, Typeface.NORMAL);
-        String myTextTypefaceName = ta.getString(R.styleable.AtlasMessageList_myTextTypeface); 
+        TypedArray ta = context.getTheme().obtainStyledAttributes(attrs, com.layer.atlas.R.styleable.AtlasMessageList, com.layer.atlas.R.attr.AtlasMessageList, defStyle);
+        this.myTextColor = ta.getColor(com.layer.atlas.R.styleable.AtlasMessageList_myTextColor, context.getResources().getColor(com.layer.atlas.R.color.atlas_text_black));
+        this.myTextStyle = ta.getInt(com.layer.atlas.R.styleable.AtlasMessageList_myTextStyle, Typeface.NORMAL);
+        String myTextTypefaceName = ta.getString(com.layer.atlas.R.styleable.AtlasMessageList_myTextTypeface);
         this.myTextTypeface  = myTextTypefaceName != null ? Typeface.create(myTextTypefaceName, myTextStyle) : null;
         //this.myTextSize = ta.getDimension(R.styleable.AtlasMessageList_myTextSize, context.getResources().getDimension(R.dimen.atlas_text_size_general));
 
-        this.otherTextColor = ta.getColor(R.styleable.AtlasMessageList_theirTextColor, context.getResources().getColor(R.color.atlas_text_black));
-        this.otherTextStyle = ta.getInt(R.styleable.AtlasMessageList_theirTextStyle, Typeface.NORMAL);
-        String otherTextTypefaceName = ta.getString(R.styleable.AtlasMessageList_theirTextTypeface); 
+        this.otherTextColor = ta.getColor(com.layer.atlas.R.styleable.AtlasMessageList_theirTextColor, context.getResources().getColor(com.layer.atlas.R.color.atlas_text_black));
+        this.otherTextStyle = ta.getInt(com.layer.atlas.R.styleable.AtlasMessageList_theirTextStyle, Typeface.NORMAL);
+        String otherTextTypefaceName = ta.getString(com.layer.atlas.R.styleable.AtlasMessageList_theirTextTypeface);
         this.otherTextTypeface  = otherTextTypefaceName != null ? Typeface.create(otherTextTypefaceName, otherTextStyle) : null;
         //this.otherTextSize = ta.getDimension(R.styleable.AtlasMessageList_theirTextSize, context.getResources().getDimension(R.dimen.atlas_text_size_general));
         
-        this.myBubbleColor  = ta.getColor(R.styleable.AtlasMessageList_myBubbleColor, context.getResources().getColor(R.color.atlas_bubble_blue));
-        this.otherBubbleColor = ta.getColor(R.styleable.AtlasMessageList_theirBubbleColor, context.getResources().getColor(R.color.atlas_background_gray));
+        this.myBubbleColor  = ta.getColor(com.layer.atlas.R.styleable.AtlasMessageList_myBubbleColor, context.getResources().getColor(com.layer.atlas.R.color.atlas_bubble_blue));
+        this.otherBubbleColor = ta.getColor(com.layer.atlas.R.styleable.AtlasMessageList_theirBubbleColor, context.getResources().getColor(com.layer.atlas.R.color.atlas_background_gray));
 
-        this.dateTextColor = ta.getColor(R.styleable.AtlasMessageList_dateTextColor, context.getResources().getColor(R.color.atlas_text_gray)); 
-        this.avatarTextColor = ta.getColor(R.styleable.AtlasMessageList_avatarTextColor, context.getResources().getColor(R.color.atlas_text_black)); 
-        this.avatarBackgroundColor = ta.getColor(R.styleable.AtlasMessageList_avatarBackgroundColor, context.getResources().getColor(R.color.atlas_background_gray));
+        this.dateTextColor = ta.getColor(com.layer.atlas.R.styleable.AtlasMessageList_dateTextColor, context.getResources().getColor(com.layer.atlas.R.color.atlas_text_gray));
+        this.avatarTextColor = ta.getColor(com.layer.atlas.R.styleable.AtlasMessageList_avatarTextColor, context.getResources().getColor(com.layer.atlas.R.color.atlas_text_black));
+        this.avatarBackgroundColor = ta.getColor(com.layer.atlas.R.styleable.AtlasMessageList_avatarBackgroundColor, context.getResources().getColor(com.layer.atlas.R.color.atlas_background_gray));
         ta.recycle();
     }
     
@@ -644,7 +639,7 @@ public class AtlasMessagesList extends FrameLayout implements LayerChangeEventLi
         double lon;
         double lat;
         
-        ImageSpec spec;
+        Atlas.ImageLoader.ImageSpec spec;
 
         public GeoCell(MessagePart messagePart) {
             super(messagePart);
@@ -661,16 +656,16 @@ public class AtlasMessagesList extends FrameLayout implements LayerChangeEventLi
         @Override
         public View onBind(final ViewGroup cellContainer) {
             
-            ViewGroup cellRoot = (ViewGroup) Tools.findChildById(cellContainer, R.id.atlas_view_messages_cell_geo);
+            ViewGroup cellRoot = (ViewGroup) Atlas.Tools.findChildById(cellContainer, com.layer.atlas.R.id.atlas_view_messages_cell_geo);
             if (cellRoot == null) {
-                cellRoot = (ViewGroup) LayoutInflater.from(cellContainer.getContext()).inflate(R.layout.atlas_view_messages_cell_geo, cellContainer, false);
+                cellRoot = (ViewGroup) LayoutInflater.from(cellContainer.getContext()).inflate(com.layer.atlas.R.layout.atlas_view_messages_cell_geo, cellContainer, false);
                 if (debug) Log.w(TAG, "geo.onBind() inflated geo cell");
             }
 
-            ImageView geoImageMy    = (ImageView) cellRoot.findViewById(R.id.atlas_view_messages_cell_geo_image_my);
-            ImageView geoImageTheir = (ImageView) cellRoot.findViewById(R.id.atlas_view_messages_cell_geo_image_their);
-            View containerMy    = cellRoot.findViewById(R.id.atlas_view_messages_cell_geo_container_my);
-            View containerTheir = cellRoot.findViewById(R.id.atlas_view_messages_cell_geo_container_their);
+            ImageView geoImageMy    = (ImageView) cellRoot.findViewById(com.layer.atlas.R.id.atlas_view_messages_cell_geo_image_my);
+            ImageView geoImageTheir = (ImageView) cellRoot.findViewById(com.layer.atlas.R.id.atlas_view_messages_cell_geo_image_their);
+            View containerMy    = cellRoot.findViewById(com.layer.atlas.R.id.atlas_view_messages_cell_geo_container_my);
+            View containerTheir = cellRoot.findViewById(com.layer.atlas.R.id.atlas_view_messages_cell_geo_container_their);
             
             boolean myMessage = client.getAuthenticatedUserId().equals(messagePart.getMessage().getSender().getUserId()); 
             if (myMessage) {
@@ -697,9 +692,9 @@ public class AtlasMessagesList extends FrameLayout implements LayerChangeEventLi
                     if (debug) Log.d(TAG, "geo.onBind() decodeImage: " + tileFile);
                     // request decoding
                     spec = imageLoader.requestBitmap(imageId
-                            , new ImageLoader.FileStreamProvider(tileFile)
-                            , (int)Tools.getPxFromDp(150, getContext())
-                            , (int)Tools.getPxFromDp(150, getContext()), BITMAP_LOAD_LISTENER);
+                            , new Atlas.ImageLoader.FileStreamProvider(tileFile)
+                            , (int) Atlas.Tools.getPxFromDp(150, getContext())
+                            , (int) Atlas.Tools.getPxFromDp(150, getContext()), BITMAP_LOAD_LISTENER);
                 } else {
                     int width = 300;
                     int height = 300;
@@ -787,7 +782,7 @@ public class AtlasMessagesList extends FrameLayout implements LayerChangeEventLi
         File tempFile = new File(file.getAbsolutePath() + ".tmp");
         
         try {
-            Tools.streamCopyAndClose(response.getEntity().getContent(), new FileOutputStream(tempFile, false));
+            Atlas.Tools.streamCopyAndClose(response.getEntity().getContent(), new FileOutputStream(tempFile, false));
             response.getEntity().consumeContent();
         } catch (IOException e) {
             if (debug) Log.e(TAG, "downloadToFile() cannot extract content from http response: " + url, e);
@@ -904,9 +899,9 @@ public class AtlasMessagesList extends FrameLayout implements LayerChangeEventLi
             MessagePart part = messagePart;
             Cell cell = this;
             
-            View cellText = Tools.findChildById(cellContainer, R.id.atlas_view_messages_cell_text);
+            View cellText = Atlas.Tools.findChildById(cellContainer, com.layer.atlas.R.id.atlas_view_messages_cell_text);
             if (cellText == null) {
-                cellText = LayoutInflater.from(cellContainer.getContext()).inflate(R.layout.atlas_view_messages_cell_text, cellContainer, false);
+                cellText = LayoutInflater.from(cellContainer.getContext()).inflate(com.layer.atlas.R.layout.atlas_view_messages_cell_text, cellContainer, false);
             }
             
             if (text == null) {
@@ -918,22 +913,22 @@ public class AtlasMessagesList extends FrameLayout implements LayerChangeEventLi
             }
             
             boolean myMessage = client.getAuthenticatedUserId().equals(cell.messagePart.getMessage().getSender().getUserId());
-            TextView textMy = (TextView) cellText.findViewById(R.id.atlas_view_messages_convert_text);
-            TextView textOther = (TextView) cellText.findViewById(R.id.atlas_view_messages_convert_text_counterparty);
+            TextView textMy = (TextView) cellText.findViewById(com.layer.atlas.R.id.atlas_view_messages_convert_text);
+            TextView textOther = (TextView) cellText.findViewById(com.layer.atlas.R.id.atlas_view_messages_convert_text_counterparty);
             if (myMessage) {
                 textMy.setVisibility(View.VISIBLE);
                 textMy.setText(text);
                 textOther.setVisibility(View.GONE);
                 
-                textMy.setBackgroundResource(R.drawable.atlas_shape_rounded16_blue);
+                textMy.setBackgroundResource(com.layer.atlas.R.drawable.atlas_shape_rounded16_blue);
                 
                 if (CLUSTERED_BUBBLES) {
                     if (cell.clusterHeadItemId == cell.clusterItemId && !cell.clusterTail) {
-                        textMy.setBackgroundResource(R.drawable.atlas_shape_rounded16_blue_no_bottom_right);
+                        textMy.setBackgroundResource(com.layer.atlas.R.drawable.atlas_shape_rounded16_blue_no_bottom_right);
                     } else if (cell.clusterTail && cell.clusterHeadItemId != cell.clusterItemId) {
-                        textMy.setBackgroundResource(R.drawable.atlas_shape_rounded16_blue_no_top_right);
+                        textMy.setBackgroundResource(com.layer.atlas.R.drawable.atlas_shape_rounded16_blue_no_top_right);
                     } else if (cell.clusterHeadItemId != cell.clusterItemId && !cell.clusterTail) {
-                        textMy.setBackgroundResource(R.drawable.atlas_shape_rounded16_blue_no_right);
+                        textMy.setBackgroundResource(com.layer.atlas.R.drawable.atlas_shape_rounded16_blue_no_right);
                     }
                 }
                 ((GradientDrawable)textMy.getBackground()).setColor(myBubbleColor);
@@ -945,14 +940,14 @@ public class AtlasMessagesList extends FrameLayout implements LayerChangeEventLi
                 textOther.setText(text);
                 textMy.setVisibility(View.GONE);
                 
-                textOther.setBackgroundResource(R.drawable.atlas_shape_rounded16_gray);
+                textOther.setBackgroundResource(com.layer.atlas.R.drawable.atlas_shape_rounded16_gray);
                 if (CLUSTERED_BUBBLES) {
                     if (cell.clusterHeadItemId == cell.clusterItemId && !cell.clusterTail) {
-                        textOther.setBackgroundResource(R.drawable.atlas_shape_rounded16_gray_no_bottom_left);
+                        textOther.setBackgroundResource(com.layer.atlas.R.drawable.atlas_shape_rounded16_gray_no_bottom_left);
                     } else if (cell.clusterTail && cell.clusterHeadItemId != cell.clusterItemId) {
-                        textOther.setBackgroundResource(R.drawable.atlas_shape_rounded16_gray_no_top_left);
+                        textOther.setBackgroundResource(com.layer.atlas.R.drawable.atlas_shape_rounded16_gray_no_top_left);
                     } else if (cell.clusterHeadItemId != cell.clusterItemId && !cell.clusterTail) {
-                        textOther.setBackgroundResource(R.drawable.atlas_shape_rounded16_gray_no_left);
+                        textOther.setBackgroundResource(com.layer.atlas.R.drawable.atlas_shape_rounded16_gray_no_left);
                     }
                 }
                 ((GradientDrawable)textOther.getBackground()).setColor(otherBubbleColor);
@@ -971,7 +966,7 @@ public class AtlasMessagesList extends FrameLayout implements LayerChangeEventLi
         MessagePart fullPart;
         int width;
         int height;
-        ImageLoader.ImageSpec imageSpec;
+        Atlas.ImageLoader.ImageSpec imageSpec;
 
         private ImageCell(MessagePart fullImagePart) {
             super(fullImagePart);
@@ -986,18 +981,18 @@ public class AtlasMessagesList extends FrameLayout implements LayerChangeEventLi
         }
         @Override
         public View onBind(final ViewGroup cellContainer) {
-            View rootView = Tools.findChildById(cellContainer, R.id.atlas_view_messages_cell_image);
+            View rootView = Atlas.Tools.findChildById(cellContainer, com.layer.atlas.R.id.atlas_view_messages_cell_image);
             if (rootView == null) {
-                rootView = LayoutInflater.from(cellContainer.getContext()).inflate(R.layout.atlas_view_messages_cell_image, cellContainer, false); 
+                rootView = LayoutInflater.from(cellContainer.getContext()).inflate(com.layer.atlas.R.layout.atlas_view_messages_cell_image, cellContainer, false);
             }
             
             Cell cell = this;
             boolean myMessage = client.getAuthenticatedUserId().equals(cell.messagePart.getMessage().getSender().getUserId());
             
-            View imageContainerMy = rootView.findViewById(R.id.atlas_view_messages_cell_image_container_my);
-            View imageContainerOther = rootView.findViewById(R.id.atlas_view_messages_cell_image_container_their);
-            ImageView imageViewMy = (ImageView) imageContainerMy.findViewById(R.id.atlas_view_messages_cell_image_my);
-            ImageView imageViewOther = (ImageView) imageContainerOther.findViewById(R.id.atlas_view_messages_cell_image_their);
+            View imageContainerMy = rootView.findViewById(com.layer.atlas.R.id.atlas_view_messages_cell_image_container_my);
+            View imageContainerOther = rootView.findViewById(com.layer.atlas.R.id.atlas_view_messages_cell_image_container_their);
+            ImageView imageViewMy = (ImageView) imageContainerMy.findViewById(com.layer.atlas.R.id.atlas_view_messages_cell_image_my);
+            ImageView imageViewOther = (ImageView) imageContainerOther.findViewById(com.layer.atlas.R.id.atlas_view_messages_cell_image_their);
             ImageView imageView = myMessage ? imageViewMy : imageViewOther;
             View imageContainer = myMessage ? imageContainerMy : imageContainerOther;
             
@@ -1030,8 +1025,8 @@ public class AtlasMessagesList extends FrameLayout implements LayerChangeEventLi
                 if (debug) Log.w(TAG, "img.onBind() size from bitmap: " + bmp.getWidth() + "x" + bmp.getHeight());
             }
                 
-            int viewWidth  = (int) (width  != 0 ? width  : Tools.getPxFromDp(48 * 4, imageContainer.getContext()));
-            int viewHeight = (int) (height != 0 ? height : Tools.getPxFromDp(48 * 4, imageContainer.getContext()));
+            int viewWidth  = (int) (width  != 0 ? width  : Atlas.Tools.getPxFromDp(48 * 4, imageContainer.getContext()));
+            int viewHeight = (int) (height != 0 ? height : Atlas.Tools.getPxFromDp(48 * 4, imageContainer.getContext()));
             int widthToFit = 0; imageContainer.getWidth();
             if (widthToFit == 0) widthToFit = cellContainer.getWidth();
             if (widthToFit == 0) widthToFit = messagesList.getWidth();
@@ -1057,7 +1052,7 @@ public class AtlasMessagesList extends FrameLayout implements LayerChangeEventLi
             } else {
                 imageView.setImageDrawable(EMPTY_DRAWABLE);
                 final Uri id = workingPart.getId();
-                final MessagePartStreamProvider streamProvider = new MessagePartStreamProvider(workingPart);
+                final Atlas.ImageLoader.MessagePartStreamProvider streamProvider = new Atlas.ImageLoader.MessagePartStreamProvider(workingPart);
                 if (workingPart.isContentReady()) {
                     imageSpec = imageLoader.requestBitmap(id, streamProvider, requiredWidth, requiredHeight, BITMAP_LOAD_LISTENER);
                 } else {
@@ -1111,8 +1106,8 @@ public class AtlasMessagesList extends FrameLayout implements LayerChangeEventLi
         }
     }; 
     
-    private final BitmapLoadListener BITMAP_LOAD_LISTENER = new ImageLoader.BitmapLoadListener() {
-        public void onBitmapLoaded(ImageSpec spec) {
+    private final Atlas.ImageLoader.BitmapLoadListener BITMAP_LOAD_LISTENER = new Atlas.ImageLoader.BitmapLoadListener() {
+        public void onBitmapLoaded(Atlas.ImageLoader.ImageSpec spec) {
             postViewRefresh();
         }
     };

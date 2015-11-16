@@ -23,7 +23,6 @@ import android.util.AttributeSet;
 import android.widget.FrameLayout;
 import android.widget.TextView;
 
-import com.layer.atlas.Atlas.ParticipantProvider;
 import com.layer.sdk.LayerClient;
 import com.layer.sdk.listeners.LayerTypingIndicatorListener;
 import com.layer.sdk.messaging.Conversation;
@@ -95,7 +94,7 @@ public class AtlasTypingIndicator extends FrameLayout implements LayerTypingIndi
      * @param participantProvider Typing indicator will resolve participant names using provider
      * @return This AtlasTypingIndicator for chaining.
      */
-    public AtlasTypingIndicator init(Conversation conversation, ParticipantProvider participantProvider) {
+    public AtlasTypingIndicator init(Conversation conversation, Atlas.ParticipantProvider participantProvider) {
         if (participantProvider == null) throw new IllegalArgumentException("ParticipantProvider cannot be null");
         return init(conversation, new DefaultTypingIndicatorCallback(participantProvider));
     }
@@ -112,12 +111,12 @@ public class AtlasTypingIndicator extends FrameLayout implements LayerTypingIndi
     }
 
     private void parseStyle(Context context, AttributeSet attrs, int defStyle) {
-        TypedArray ta = context.getTheme().obtainStyledAttributes(attrs, R.styleable.AtlasTypingIndicator, R.attr.AtlasTypingIndicator, defStyle);
+        TypedArray ta = context.getTheme().obtainStyledAttributes(attrs, com.layer.atlas.R.styleable.AtlasTypingIndicator, com.layer.atlas.R.attr.AtlasTypingIndicator, defStyle);
         Resources r = context.getResources();
-        mTextColor = ta.getColor(R.styleable.AtlasTypingIndicator_textColor, r.getColor(R.color.atlas_text_black));
-        mTextStyle = ta.getInt(R.styleable.AtlasTypingIndicator_textStyle, Typeface.NORMAL);
-        mTextTypeface = Typeface.create(ta.getString(R.styleable.AtlasParticipantPicker_inputTextTypeface), mTextStyle);
-        mTextSize = ta.getDimension(R.styleable.AtlasTypingIndicator_textSize, r.getDimension(R.dimen.atlas_text_size_general));
+        mTextColor = ta.getColor(com.layer.atlas.R.styleable.AtlasTypingIndicator_textColor, r.getColor(com.layer.atlas.R.color.atlas_text_black));
+        mTextStyle = ta.getInt(com.layer.atlas.R.styleable.AtlasTypingIndicator_textStyle, Typeface.NORMAL);
+        mTextTypeface = Typeface.create(ta.getString(com.layer.atlas.R.styleable.AtlasParticipantPicker_inputTextTypeface), mTextStyle);
+        mTextSize = ta.getDimension(com.layer.atlas.R.styleable.AtlasTypingIndicator_textSize, r.getDimension(com.layer.atlas.R.dimen.atlas_text_size_general));
         ta.recycle();
     }
 
@@ -213,7 +212,7 @@ public class AtlasTypingIndicator extends FrameLayout implements LayerTypingIndi
                 return;
             }
 
-            String[] strings = indicator.getResources().getStringArray(R.array.atlas_typing_indicator);
+            String[] strings = indicator.getResources().getStringArray(com.layer.atlas.R.array.atlas_typing_indicator);
             String string = strings[Math.min(strings.length - 1, typingUserIds.size())];
             String[] names = new String[typists.size()];
             int i = 0;
