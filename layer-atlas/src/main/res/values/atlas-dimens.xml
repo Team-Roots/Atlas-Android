@@ -20,5 +20,7 @@
     <dimen name="atlas_text_size_smaller">14sp</dimen>
     <dimen name="atlas_text_size_smaller2">12sp</dimen>
     <dimen name="atlas_text_size_tiny">8sp</dimen>
-
+    <dimen name="activity_horizontal_margin">16dp</dimen>
+    <dimen name="activity_vertical_margin">16dp</dimen>
+    <dimen name="activity_margin_triple">48dp</dimen>
 </resources>

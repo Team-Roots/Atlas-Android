@@ -148,6 +148,7 @@ public class AtlasMessageComposer extends FrameLayout {
         });
         
         messageText = (EditText) findViewById(com.layer.atlas.R.id.atlas_message_composer_text);
+
         messageText.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {}

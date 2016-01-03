@@ -27,8 +27,17 @@
         android:listSelector="@android:color/transparent" 
         android:cacheColorHint="@android:color/transparent"
         android:stackFromBottom="true"
-        android:transcriptMode="normal"
+        android:transcriptMode="alwaysScroll"
         />
-                
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:layout_marginRight="@dimen/activity_horizontal_margin"
+        android:layout_marginLeft="@dimen/activity_horizontal_margin"
+        style="?android:textAppearanceLarge"
+        android:textColor="#ff929292"
+        android:id="@+id/no_messages_description"
+        android:text="@string/no_messages_description"/>
 </FrameLayout>
     

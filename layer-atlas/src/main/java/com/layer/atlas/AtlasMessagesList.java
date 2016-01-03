@@ -349,7 +349,7 @@ public class AtlasMessagesList extends FrameLayout implements LayerChangeEventLi
             }
         });
         // --- end of messageView
-        
+        applyStyle();
         updateValues();
     }
     
@@ -434,7 +434,14 @@ public class AtlasMessagesList extends FrameLayout implements LayerChangeEventLi
         
         List<Message> messages = client.getMessages(conv);
         cells.clear();
-        if (messages.isEmpty()) return;
+        if (messages.isEmpty()) {
+            return;
+        } else {
+            if(findViewById(R.id.no_messages_description).getVisibility()!=View.GONE){
+                findViewById(R.id.no_messages_description).setVisibility(View.GONE);
+            }
+        }
+
         
         latestReadMessage = null;
         latestDeliveredMessage = null;
@@ -556,6 +563,7 @@ public class AtlasMessagesList extends FrameLayout implements LayerChangeEventLi
             long started = System.currentTimeMillis();
             if (msg.what ==  MESSAGE_TYPE_UPDATE_VALUES) {
                 if (msg.arg1 == MESSAGE_REFRESH_UPDATE_ALL) {
+                    applyStyle();
                     updateValues();
                 } else if (msg.arg1 == MESSAGE_REFRESH_UPDATE_DELIVERY) {
                     LayerClient client = (LayerClient) msg.obj;
@@ -564,7 +572,8 @@ public class AtlasMessagesList extends FrameLayout implements LayerChangeEventLi
                     if (debug) Log.w(TAG, "refreshHandler() delivery status changed: " + changed);
                 }
                 if (msg.arg2 > 0) {
-                    messagesList.smoothScrollToPosition(messagesAdapter.getCount() - 1);
+                    applyStyle();
+                    //messagesList.smoothScrollToPosition(messagesAdapter.getCount() - 1);
                 }
             }
             final long currentTimeMillis = System.currentTimeMillis();

@@ -23,14 +23,28 @@
         android:id="@+id/conversation_list_swipe_refresh_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
-    <ListView
-        android:id="@+id/atlas_conversations_view"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_weight="1"
-        android:divider="@android:color/transparent"
-        android:dividerHeight="0dp"
-        />
+
+
+        <ListView
+         android:visibility="gone"
+         android:id="@+id/atlas_conversations_view"
+         android:layout_width="match_parent"
+         android:layout_height="wrap_content"
+         android:layout_weight="1"
+         android:divider="@android:color/transparent"
+         android:dividerHeight="0dp"
+        android:layout_gravity="right|center_vertical" />
     </android.support.v4.widget.SwipeRefreshLayout>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:id="@+id/no_conversation_description"
+        style="?android:textAppearanceLarge"
+        android:textColor="#ff929292"
+        android:layout_marginRight="@dimen/activity_margin_triple"
+        android:layout_marginLeft="@dimen/activity_margin_triple"
+        android:layout_gravity="left|center_vertical" />
 </FrameLayout>
     

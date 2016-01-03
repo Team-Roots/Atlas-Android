@@ -255,16 +255,18 @@ public class AtlasConversationsList extends FrameLayout implements LayerChangeEv
             public void onAuthenticationChallenge(LayerClient client, String nonce) {
             }
         });
-        
+
         applyStyle();
 
         updateValues();
+
         mSwipeRefreshLayout=(SwipeRefreshLayout)findViewById(com.layer.atlas.R.id.conversation_list_swipe_refresh_layout);
         mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                updateValues();
+
                 refreshContent();
+                updateValues();
             }
         });
     }
@@ -275,6 +277,7 @@ public class AtlasConversationsList extends FrameLayout implements LayerChangeEv
             public void run() {
 
                 mSwipeRefreshLayout.setRefreshing(false);
+
             }
         }, 1500);
         }
@@ -322,6 +325,17 @@ public class AtlasConversationsList extends FrameLayout implements LayerChangeEv
                     return result < 0L ? -1 : 1;
                 }
             });
+            if(conversations.size()>0 && findViewById(R.id.no_conversation_description).getVisibility()==View.VISIBLE){
+                findViewById(R.id.no_conversation_description).setVisibility(View.GONE);
+                findViewById(R.id.atlas_conversations_view).setVisibility(View.VISIBLE);
+            } else {
+                TextView noConversationDescription=(TextView)findViewById(R.id.no_conversation_description);
+                if(accountType==1){
+                    noConversationDescription.setText(R.string.no_conversation_description_counselor);
+                } else {
+                    noConversationDescription.setText(R.string.no_conversation_description);
+                }
+            }
         }
     }
 
@@ -719,7 +733,7 @@ public class AtlasConversationsList extends FrameLayout implements LayerChangeEv
                     imageView.setImageDrawable(roundImage);
 
                 }else{
-                    Log.d("failed to set bitmap to image view", "failed to set bitmap to image view");
+                    Log.d("bitmap", "failed to set bitmap to image view");
                 }
             }
 
