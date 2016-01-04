@@ -197,10 +197,10 @@ public class AtlasMessageComposer extends FrameLayout {
         if (text.trim().length() > 0) {
 
             ArrayList<MessagePart> parts = new ArrayList<MessagePart>();
-            String[] lines = text.split("\n+");
-            for (String line : lines) {
-                parts.add(layerClient.newMessagePart(line));
-            }
+            //String[] lines = text.split("\n+");
+            //for (String line : lines) {
+                parts.add(layerClient.newMessagePart(text));
+            //}
             MessageOptions options = new MessageOptions();
             if(conv!=null) {
                 if (accountType == 1) {

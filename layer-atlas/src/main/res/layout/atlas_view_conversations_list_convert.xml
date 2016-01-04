@@ -21,14 +21,14 @@
     <LinearLayout
         android:background="#66ddff00"
         android:id="@+id/bottom_wrapper"
-        android:layout_width="72dp"
+        android:layout_width="70dp"
         android:weightSum="1"
         android:orientation="horizontal"
         android:layout_height="match_parent">
         <ImageView
             android:id="@+id/trash"
             android:src="@drawable/trash"
-            android:layout_width="72dp"
+            android:layout_width="70dp"
             android:background="@drawable/red"
             android:paddingLeft="25dp"
             android:paddingRight="25dp"
@@ -42,14 +42,14 @@
 
     android:id="@+id/atlas_view_conversations_list_convert"
     android:layout_width="match_parent"
-    android:layout_height="72dp" 
+    android:layout_height="70dp"
     android:orientation="horizontal" >
 
     <!-- avatar container -->
     <FrameLayout
         android:id="@+id/atlas_view_conversations_list_convert_avatar_container"
-    	android:layout_height="72dp"
-    	android:layout_width="72dp"
+    	android:layout_height="70dp"
+    	android:layout_width="70dp"
     	>
     	
         <!-- single person avatar -->
