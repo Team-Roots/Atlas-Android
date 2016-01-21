@@ -43,7 +43,7 @@
         android:imeOptions="actionDone"
         android:scrollHorizontally="false"
         android:paddingLeft="30dp"
-        
+
         />
     
     <TextView

@@ -89,6 +89,12 @@ public class AtlasConversationsList extends FrameLayout implements LayerChangeEv
 
     private ConversationClickListener clickListener;
     private ConversationLongClickListener longClickListener;
+
+    public interface IMyEventListener {
+        public void onConversationDeleted();
+    }
+
+    private IMyEventListener mEventListener;
     
     //styles
     private int titleTextColor;
@@ -147,6 +153,11 @@ public class AtlasConversationsList extends FrameLayout implements LayerChangeEv
         this.dateFormat = android.text.format.DateFormat.getDateFormat(context);
         this.timeFormat = android.text.format.DateFormat.getTimeFormat(context);
     }
+
+    public void setMyIEventListener(IMyEventListener mEventListener) {
+        this.mEventListener = mEventListener;
+    }
+
     public ArrayList<String> getCounselorsinConversationWith(){
        ArrayList<String> counselorsinConversationWith=new ArrayList<String>();
         for(Conversation convo:conversations){
@@ -328,8 +339,9 @@ public class AtlasConversationsList extends FrameLayout implements LayerChangeEv
             if(conversations.size()>0 && findViewById(R.id.no_conversation_description).getVisibility()==View.VISIBLE){
                 findViewById(R.id.no_conversation_description).setVisibility(View.GONE);
                 findViewById(R.id.atlas_conversations_view).setVisibility(View.VISIBLE);
-            } else {
+            } else if (conversations.size()==0) {
                 TextView noConversationDescription=(TextView)findViewById(R.id.no_conversation_description);
+                noConversationDescription.setVisibility(VISIBLE);
                 if(accountType==1){
                     noConversationDescription.setText(R.string.no_conversation_description_counselor);
                 } else {
@@ -605,6 +617,13 @@ public class AtlasConversationsList extends FrameLayout implements LayerChangeEv
                     conversations.remove(getItem(position));
                     swipeLayout.close(false);
                     notifyDataSetChanged();
+
+                    updateValues();
+
+                    if (mEventListener!=null) {
+                        mEventListener.onConversationDeleted();
+                    }
+
 
                 }
             });

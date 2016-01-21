@@ -348,6 +348,9 @@ public class AtlasMessagesList extends FrameLayout implements LayerChangeEventLi
                 }
             }
         });
+
+
+        messagesList.setSmoothScrollbarEnabled(true);
         // --- end of messageView
         applyStyle();
         updateValues();
@@ -626,7 +629,12 @@ public class AtlasMessagesList extends FrameLayout implements LayerChangeEventLi
     }
     
     public void jumpToLastMessage() {
-        messagesList.smoothScrollToPosition(cells.size() - 1);
+        messagesList.post(new Runnable() {
+            @Override
+            public void run() {
+                messagesList.smoothScrollToPosition(cells.size() - 1);
+            }
+        });
     }
 
     public Conversation getConversation() {
