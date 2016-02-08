@@ -184,7 +184,11 @@ public class AtlasMessagesList extends FrameLayout implements LayerChangeEventLi
         // --- message view
         messagesList = (ListView) findViewById(com.layer.atlas.R.id.atlas_messages_list);
         messagesList.setAdapter(messagesAdapter = new BaseAdapter() {
-            
+            @Override
+            public void notifyDataSetChanged(){
+                super.notifyDataSetChanged();
+                jumpToLastMessage();
+            }
             public View getView(int position, View convertView, ViewGroup parent) {
                 final Cell cell = cells.get(position);
                 MessagePart part = cell.messagePart;
@@ -382,7 +386,13 @@ public class AtlasMessagesList extends FrameLayout implements LayerChangeEventLi
     private void applyStyle() {
         messagesAdapter.notifyDataSetChanged();
     }
+    @Override
+    protected void onSizeChanged(int xNew, int yNew, int xOld, int yOld) {
+        super.onSizeChanged(xNew, yNew, xOld, yOld);
 
+        jumpToLastMessageFirstRun();
+
+    }
     protected void buildCellForMessage(Message msg, ArrayList<Cell> destination) {
         
         final ArrayList<MessagePart> parts = new ArrayList<MessagePart>(msg.getMessageParts());
@@ -636,6 +646,23 @@ public class AtlasMessagesList extends FrameLayout implements LayerChangeEventLi
             }
         });
     }
+    public void jumpToLastMessageFirstRun(){
+        messagesList.post(new Runnable() {
+            @Override
+            public void run() {
+                messagesList.setSelection(cells.size() - 1);
+            }
+        });
+    }
+
+    public void jumpToLastMessageFirstRunSlow() {
+        messagesList.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                messagesList.setSelection(cells.size() - 1);
+            }
+        }, 100);
+    }
 
     public Conversation getConversation() {
         return conv;
@@ -644,7 +671,8 @@ public class AtlasMessagesList extends FrameLayout implements LayerChangeEventLi
     public void setConversation(Conversation conv) {
         this.conv = conv;
         updateValues();
-        jumpToLastMessage();
+
+        jumpToLastMessageFirstRun();
     }
     
     public void setItemClickListener(ItemClickListener clickListener) {
@@ -1131,7 +1159,6 @@ public class AtlasMessagesList extends FrameLayout implements LayerChangeEventLi
     
     private static final Atlas.ImageLoader imageLoader = new Atlas.ImageLoader();
     private static final DownloadQueue downloadQueue = new DownloadQueue();
-
 
     private class LoadImage extends AsyncTask<String, String, Bitmap> {
         ImageView imageView=null;

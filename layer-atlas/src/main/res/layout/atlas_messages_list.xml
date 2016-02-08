@@ -13,6 +13,7 @@
      See the License for the specific language governing permissions and
      limitations under the License.    
 -->
+
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -26,8 +27,7 @@
         android:divider="@android:color/transparent"
         android:listSelector="@android:color/transparent" 
         android:cacheColorHint="@android:color/transparent"
-        android:stackFromBottom="true"
-        android:transcriptMode="alwaysScroll"
+
         />
     <TextView
         android:layout_width="match_parent"
@@ -40,4 +40,4 @@
         android:id="@+id/no_messages_description"
         android:text="@string/no_messages_description"/>
 </FrameLayout>
-    
+

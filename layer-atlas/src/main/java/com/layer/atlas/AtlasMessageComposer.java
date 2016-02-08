@@ -25,7 +25,6 @@ import android.text.TextWatcher;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.Gravity;
-import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -61,7 +60,7 @@ public class AtlasMessageComposer extends FrameLayout {
     private Conversation conv;
     private LayerClient layerClient;
     private int accountType;
-    private ArrayList<MenuItem> menuItems = new ArrayList<MenuItem>(); 
+    private ArrayList<MenuItem> menuItems = new ArrayList<MenuItem>();
     
     // styles
     private int textColor;
@@ -179,15 +178,6 @@ public class AtlasMessageComposer extends FrameLayout {
             }
         });
 
-        messageText.setOnEditorActionListener(new TextView.OnEditorActionListener() {
-            @Override
-            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-                boolean handled = false;
-                    sendMessage();
-                    handled = true;
-                return handled;
-            }
-        });
         applyStyle();
     }
 
@@ -204,6 +194,7 @@ public class AtlasMessageComposer extends FrameLayout {
             MessageOptions options = new MessageOptions();
             if(conv!=null) {
                 if (accountType == 1) {
+
                     options.pushNotificationMessage((String) conv.getMetadata().get("counselor.name") + "," + (String) conv.getMetadata().get("counselor.avatarString") + "," + text);
 
                 } else {
