@@ -21,10 +21,11 @@
     <LinearLayout
         android:background="#66ddff00"
         android:id="@+id/bottom_wrapper"
-        android:layout_width="70dp"
+        android:layout_width="wrap_content"
         android:weightSum="1"
         android:orientation="horizontal"
         android:layout_height="match_parent">
+
         <ImageView
             android:id="@+id/trash"
             android:src="@drawable/trash"
@@ -33,6 +34,15 @@
             android:paddingLeft="25dp"
             android:paddingRight="25dp"
             android:layout_height="match_parent" />
+        <ImageView
+            android:id="@+id/report_student"
+            android:src="@drawable/ic_report_problem_white_24dp"
+            android:layout_width="70dp"
+            android:background="@drawable/red"
+            android:paddingLeft="25dp"
+            android:paddingRight="25dp"
+            android:layout_height="match_parent" />
+
 
 
         <!--What you want to show-->

@@ -40,6 +40,7 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.daimajia.swipe.SwipeLayout;
 import com.daimajia.swipe.adapters.BaseSwipeAdapter;
@@ -53,6 +54,9 @@ import com.layer.sdk.messaging.Conversation;
 import com.layer.sdk.messaging.LayerObject;
 import com.layer.sdk.messaging.Message;
 import com.layer.sdk.messaging.Message.RecipientStatus;
+import com.parse.FunctionCallback;
+import com.parse.ParseCloud;
+import com.parse.ParseException;
 
 import java.io.InputStream;
 import java.net.URL;
@@ -62,6 +66,7 @@ import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
@@ -349,6 +354,7 @@ public class AtlasConversationsList extends FrameLayout implements LayerChangeEv
                 }
             }
         }
+
     }
 
     public String generateRandomTreeName(){
@@ -475,7 +481,10 @@ public class AtlasConversationsList extends FrameLayout implements LayerChangeEv
         public View generateView(int position, ViewGroup parent) {
             return LayoutInflater.from(parent.getContext()).inflate(com.layer.atlas.R.layout.atlas_view_conversations_list_convert, parent, false);
         }
-        public void fillValues(final int position, View convertView) {
+        public void notifyDataSetChanged() {
+            super.notifyDataSetChanged();
+        }
+        public void fillValues(final int position, final View convertView) {
 
             Uri convId = conversations.get(position).getId();
             Conversation conv = layerClient.getConversation(convId);
@@ -506,7 +515,7 @@ public class AtlasConversationsList extends FrameLayout implements LayerChangeEv
 
                 if(conv.getMetadata().get("counselor")!=null && accountType==0) {
                     String counselorIdMetadataUpper=(String)conv.getMetadata().get("counselor.ID");
-                    Log.d("counselorIdMetadata","counselorIdMetadataUpper"+counselorIdMetadataUpper);
+                    Log.d("counselorIdMetadata", "counselorIdMetadataUpper" + counselorIdMetadataUpper);
                     if(getBitmapFromCache(counselorIdMetadataUpper.toLowerCase())==null){
                         Log.d("Loading Image", "Loading Image "+ "Loading Image");
 
@@ -612,7 +621,7 @@ public class AtlasConversationsList extends FrameLayout implements LayerChangeEv
             trash.setOnClickListener(new OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    Conversation deleteConversation=(Conversation)getItem(position);
+                    Conversation deleteConversation = (Conversation) getItem(position);
                     deleteConversation.delete(LayerClient.DeletionMode.ALL_PARTICIPANTS);
                     conversations.remove(getItem(position));
                     swipeLayout.close(false);
@@ -620,15 +629,56 @@ public class AtlasConversationsList extends FrameLayout implements LayerChangeEv
 
                     updateValues();
 
-                    if (mEventListener!=null) {
+                    if (mEventListener != null) {
                         mEventListener.onConversationDeleted();
                     }
 
 
                 }
             });
+            ImageView reportButton= (ImageView)convertView.findViewById(R.id.report_student);
+            if(accountType==0) {
+                reportButton.setVisibility(View.GONE);
+            } else {
+                if(conv.getMetadata().get("isReported")=="true") {
+                    reportButton.setImageResource(R.drawable.ic_undo_white_24dp);
+                }
+                reportButton.setOnClickListener(new OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        changeReportStudentStatus((Conversation) getItem(position), convertView);
 
+                    }
+                });
+            }
 
+        }
+
+        public void changeReportStudentStatus(final Conversation conv, final View convertView) {
+
+            final HashMap<String, Object> params = new HashMap<String, Object>();
+            params.put("userID", conv.getMetadata().get("student.ID"));
+            ParseCloud.callFunctionInBackground("changeStudentReportValue", params, new FunctionCallback<Boolean>() {
+                public void done(Boolean studentReportValue, ParseException e) {
+                    if (e == null) {
+                        if (studentReportValue) {
+                            Toast.makeText(context, "User successfully reported.", Toast.LENGTH_SHORT).show();
+                            conv.putMetadataAtKeyPath("isReported", "true");
+                            updateValues();
+                            ImageView convertViewImage=(ImageView)convertView.findViewById(R.id.report_student);
+                            convertViewImage.setImageResource(R.drawable.ic_undo_white_24dp);
+                        } else {
+                            Toast.makeText(context, "User successfully un-reported.", Toast.LENGTH_SHORT).show();
+                            conv.putMetadataAtKeyPath("isReported", "false");
+                            updateValues();
+                            ImageView convertViewImage=(ImageView)convertView.findViewById(R.id.report_student);
+                            convertViewImage.setImageResource(R.drawable.ic_report_problem_white_24dp);
+                        }
+                    } else {
+                        Toast.makeText(context, e.getMessage(), Toast.LENGTH_SHORT).show();
+                    }
+                }
+            });
         }
         public long getItemId(int position) {
             return position;

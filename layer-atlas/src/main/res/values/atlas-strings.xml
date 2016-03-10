@@ -23,6 +23,7 @@
         <item>Many people are typing…</item>
     </string-array>
     <string name="no_conversation_description_counselor">No one has messaged you yet. </string>
+    <string name="no_reports_description">Good news! No student has been reported yet. </string>
     <string name="no_conversation_description">No conversations yet. Tap one of the faces above. :)</string>
     <string name="no_messages_description">What\'s up? Tap the bottom message bar to start typing.</string>
 </resources>
