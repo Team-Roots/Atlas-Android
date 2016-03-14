@@ -15,7 +15,9 @@
  */
 package com.layer.atlas;
 
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.res.TypedArray;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -54,9 +56,7 @@ import com.layer.sdk.messaging.Conversation;
 import com.layer.sdk.messaging.LayerObject;
 import com.layer.sdk.messaging.Message;
 import com.layer.sdk.messaging.Message.RecipientStatus;
-import com.parse.FunctionCallback;
-import com.parse.ParseCloud;
-import com.parse.ParseException;
+import com.layer.sdk.messaging.MessagePart;
 
 import java.io.InputStream;
 import java.net.URL;
@@ -66,8 +66,6 @@ import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
 
@@ -119,6 +117,7 @@ public class AtlasConversationsList extends FrameLayout implements LayerChangeEv
     private int dateTextColor;
     private int avatarTextColor;
     private int avatarBackgroundColor;
+
     SwipeRefreshLayout mSwipeRefreshLayout;
 
 
@@ -133,6 +132,8 @@ public class AtlasConversationsList extends FrameLayout implements LayerChangeEv
     //default set to 0
     private int accountType;
 
+    //admin
+    private String globalUserId;
 
     //Image Caching
     private LruCache<String, Bitmap> mMemoryCache;
@@ -206,11 +207,12 @@ public class AtlasConversationsList extends FrameLayout implements LayerChangeEv
         }
     }
 
-    public void init(final LayerClient layerClient, final Atlas.ParticipantProvider participantProvider, int accountTypeLocal, Context contextLocal) {
+    public void init(final LayerClient layerClient, final ParticipantProvider participantProvider, int accountTypeLocal, Context contextLocal, String userId) {
         if (layerClient == null) throw new IllegalArgumentException("LayerClient cannot be null");
         if (participantProvider == null) throw new IllegalArgumentException("ParticipantProvider cannot be null");
         if (conversationsList != null) throw new IllegalStateException("AtlasConversationList is already initialized!");
-
+        accountType=accountTypeLocal;
+        globalUserId= layerClient.getAuthenticatedUserId();
         this.layerClient = layerClient;
         accountType = accountTypeLocal;
         context=contextLocal;
@@ -287,6 +289,8 @@ public class AtlasConversationsList extends FrameLayout implements LayerChangeEv
         });
     }
 
+
+
     private void refreshContent(){
         new Handler().postDelayed(new Runnable() {
             @Override
@@ -304,25 +308,31 @@ public class AtlasConversationsList extends FrameLayout implements LayerChangeEv
         if (conversationsAdapter == null) {                 // never initialized
             return;
         }
-        
+
         conversations.clear();                              // always clean, rebuild if authenticated 
         conversationsAdapter.notifyDataSetChanged();
-        
+
         if (layerClient.isAuthenticated()) {
-            
+
             List<Conversation> convs = layerClient.getConversations();
             if (debug) Log.d(TAG, "updateValues() conv: " + convs.size());
             for (Conversation conv : convs) {
                 // no participants means we are removed from conversation (disconnected conversation)
                 if (conv.getParticipants().size() == 0) continue;
+
+
+
+
                 // only ourselves in participant list is possible to happen, but there is nothing to do with it
                 // behave like conversation is disconnected
-                if (conv.getParticipants().size() == 1 
-                        && conv.getParticipants().contains(layerClient.getAuthenticatedUserId())) continue;
-                
+                if (conv.getParticipants().size() == 1
+                        && conv.getParticipants().contains(globalUserId)) continue;
+
+
+
                 conversations.add(conv);
             }
-            
+
             // the bigger .time the highest in the list
             Collections.sort(conversations, new Comparator<Conversation>() {
                 public int compare(Conversation lhs, Conversation rhs) {
@@ -470,8 +480,8 @@ public class AtlasConversationsList extends FrameLayout implements LayerChangeEv
     //Swipe Adapter Documentation: https://github.com/daimajia/AndroidSwipeLayout/wiki
     public class AtlasBaseSwipeAdapter extends BaseSwipeAdapter {
         SwipeLayout swipeLayout;
-        Atlas.ParticipantProvider participantProvider;
-        public AtlasBaseSwipeAdapter(Atlas.ParticipantProvider provider){
+        ParticipantProvider participantProvider;
+        public AtlasBaseSwipeAdapter(ParticipantProvider provider){
             participantProvider=provider;
 
         }
@@ -490,18 +500,19 @@ public class AtlasConversationsList extends FrameLayout implements LayerChangeEv
             Conversation conv = layerClient.getConversation(convId);
 
             ArrayList<String> allButMe = new ArrayList<String>(conv.getParticipants());
-            allButMe.remove(layerClient.getAuthenticatedUserId());
+            allButMe.remove(globalUserId);
 
             TextView textTitle = (TextView) convertView.findViewById(com.layer.atlas.R.id.atlas_conversation_view_convert_participant);
-            String conversationTitle = Atlas.getTitle(conv, participantProvider, layerClient.getAuthenticatedUserId());
+            String conversationTitle = Atlas.getTitle(conv, participantProvider, globalUserId);
             textTitle.setText(conversationTitle);
+
 
             // avatar icons...
             TextView textInitials = (TextView) convertView.findViewById(com.layer.atlas.R.id.atlas_view_conversations_list_convert_avatar_single_text);
             View avatarSingle = convertView.findViewById(com.layer.atlas.R.id.atlas_view_conversations_list_convert_avatar_single);
             View avatarMulti = convertView.findViewById(com.layer.atlas.R.id.atlas_view_conversations_list_convert_avatar_multi);
             ImageView imageView = (ImageView)convertView.findViewById(com.layer.atlas.R.id.atlas_view_conversations_list_convert_avatar_single_image);
-            if (allButMe.size() < 3 && allButMe.contains("1")) {
+        //    if (allButMe.size() < 3 && allButMe.contains("1")) {
                 String conterpartyUserId = allButMe.get(0);
                 Atlas.Participant participant = participantProvider.getParticipant(conterpartyUserId);
 
@@ -513,7 +524,7 @@ public class AtlasConversationsList extends FrameLayout implements LayerChangeEv
 
 
 
-                if(conv.getMetadata().get("counselor")!=null && accountType==0) {
+                if(conv.getMetadata().get("counselor")!=null && (accountType==0 || accountType==2)) {
                     String counselorIdMetadataUpper=(String)conv.getMetadata().get("counselor.ID");
                     Log.d("counselorIdMetadata", "counselorIdMetadataUpper" + counselorIdMetadataUpper);
                     if(getBitmapFromCache(counselorIdMetadataUpper.toLowerCase())==null){
@@ -524,8 +535,12 @@ public class AtlasConversationsList extends FrameLayout implements LayerChangeEv
                         RoundImage roundImage=new RoundImage(getBitmapFromCache(counselorIdMetadataUpper.toLowerCase()));
                         imageView.setImageDrawable(roundImage);
                     }
-
-                    textTitle.setText((String)conv.getMetadata().get("counselor.name"));
+                    if(accountType==2){
+                        String titleText=conv.getMetadata().get("student.ID")+", "+conv.getMetadata().get("counselor.name");
+                        textTitle.setText(titleText);
+                    } else {
+                        textTitle.setText((String) conv.getMetadata().get("counselor.name"));
+                    }
                 } else if (conv.getMetadata().get("student")!=null && accountType==1) {
 
                     if(conv.getMetadata().get("student.name").equals("")){
@@ -547,7 +562,8 @@ public class AtlasConversationsList extends FrameLayout implements LayerChangeEv
                 avatarSingle.setVisibility(View.VISIBLE);
                 avatarMulti.setVisibility(View.GONE);
 
-            } else {
+            //Multi Avatar-for later use
+          /*  } else {
                 Atlas.Participant leftParticipant = null;
                 Atlas.Participant rightParticipant = null;
                 for (Iterator<String> itUserId = allButMe.iterator(); itUserId.hasNext();) {
@@ -575,12 +591,27 @@ public class AtlasConversationsList extends FrameLayout implements LayerChangeEv
 
                 avatarSingle.setVisibility(View.GONE);
                 avatarMulti.setVisibility(View.VISIBLE);
-            }
+            }*/
 
             TextView textLastMessage = (TextView) convertView.findViewById(com.layer.atlas.R.id.atlas_conversation_view_last_message);
             TextView timeView = (TextView) convertView.findViewById(com.layer.atlas.R.id.atlas_conversation_view_convert_time);
             if (conv.getLastMessage() != null ) {
+
                 Message last = conv.getLastMessage();
+                boolean isReportMessageLast;
+                do {
+                    isReportMessageLast=false;
+                    for (MessagePart part : last.getMessageParts()) {
+                        String messageText = new String(part.getData());
+                        if (messageText.equals("Conversation Reported")) {
+                            isReportMessageLast = true;
+                            last = layerClient.getMessages(conv).get((layerClient.getMessages(conv).indexOf(last) - 1));
+                        }
+                    }
+                } while(isReportMessageLast);
+
+
+
                 String lastMessageText = Atlas.Tools.toString(last);
 
                 textLastMessage.setText(lastMessageText);
@@ -590,7 +621,8 @@ public class AtlasConversationsList extends FrameLayout implements LayerChangeEv
                 else                timeView.setText(formatTime(sentAt));
 
                 String userId = last.getSender().getUserId();                   // could be null for system messages
-                String myId = layerClient.getAuthenticatedUserId();
+                String myId = globalUserId;
+
                 if ((userId != null) && !userId.equals(myId) && last.getRecipientStatus(myId) != RecipientStatus.READ) {
                     textTitle.setTextColor(titleUnreadTextColor);
                     textTitle.setTypeface(titleUnreadTextTypeface, titleUnreadTextStyle);
@@ -638,15 +670,23 @@ public class AtlasConversationsList extends FrameLayout implements LayerChangeEv
             });
             ImageView reportButton= (ImageView)convertView.findViewById(R.id.report_student);
             if(accountType==0) {
+                if (conv.getParticipants().size()>2){
+                    trash.setVisibility(View.GONE);
+                }
                 reportButton.setVisibility(View.GONE);
             } else {
-                if(conv.getMetadata().get("isReported")=="true") {
+                if(conv.getParticipants().size()>2) {
                     reportButton.setImageResource(R.drawable.ic_undo_white_24dp);
                 }
                 reportButton.setOnClickListener(new OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        changeReportStudentStatus((Conversation) getItem(position), convertView);
+                        Conversation conv=(Conversation)getItem(position);
+                        if(conv.getParticipants().size()>2) {
+                            getWarningAlertDialog(R.string.undo_warning, R.string.undo, conv, convertView).show();
+                        } else {
+                            getWarningAlertDialog(R.string.report_warning, R.string.report, conv, convertView).show();
+                        }
 
                     }
                 });
@@ -654,22 +694,53 @@ public class AtlasConversationsList extends FrameLayout implements LayerChangeEv
 
         }
 
-        public void changeReportStudentStatus(final Conversation conv, final View convertView) {
+        public void changeStudentReportStatus(final Conversation conv, final View convertView) {
 
-            final HashMap<String, Object> params = new HashMap<String, Object>();
-            params.put("userID", conv.getMetadata().get("student.ID"));
-            ParseCloud.callFunctionInBackground("changeStudentReportValue", params, new FunctionCallback<Boolean>() {
+            Participant[] participants = participantProvider.getCustomParticipants();
+            if(conv.getParticipants().size()<=2) {
+                for (Participant p : participants) {
+                    if (p.getCounselorType() == 0)
+                        conv.addParticipants(p.getID());
+                }
+                Toast.makeText(context, "Conversation reported.", Toast.LENGTH_SHORT).show();
+                updateValues();
+                ImageView convertViewImage = (ImageView) convertView.findViewById(R.id.report_student);
+                convertViewImage.setImageResource(R.drawable.ic_undo_white_24dp);
+            } else {
+                Toast.makeText(context, "Report Undone", Toast.LENGTH_SHORT).show();
+
+                for(Participant p: participants){
+                    if(p.getCounselorType()==0)
+                        conv.removeParticipants(p.getID());
+                }
+                updateValues();
+                ImageView convertViewImage=(ImageView)convertView.findViewById(R.id.report_student);
+                convertViewImage.setImageResource(R.drawable.ic_report_problem_white_24dp);
+            }
+//            final HashMap<String, Object> params = new HashMap<String, Object>();
+//            params.put("userID", conv.getMetadata().get("student.ID"));
+           /* ParseCloud.callFunctionInBackground("changeStudentReportValue", params, new FunctionCallback<Boolean>() {
                 public void done(Boolean studentReportValue, ParseException e) {
                     if (e == null) {
-                        if (studentReportValue) {
+                        Participant[] participants=participantProvider.getCustomParticipants();
+                        if (studentReportValue.getBoolean()) {
                             Toast.makeText(context, "User successfully reported.", Toast.LENGTH_SHORT).show();
-                            conv.putMetadataAtKeyPath("isReported", "true");
+
+
+                            for(Participant p: participants){
+                                if(p.getCounselorType()==0)
+                                    conv.addParticipants(p.getID());
+                            }
                             updateValues();
                             ImageView convertViewImage=(ImageView)convertView.findViewById(R.id.report_student);
                             convertViewImage.setImageResource(R.drawable.ic_undo_white_24dp);
                         } else {
                             Toast.makeText(context, "User successfully un-reported.", Toast.LENGTH_SHORT).show();
-                            conv.putMetadataAtKeyPath("isReported", "false");
+
+                            for(Participant p: participants){
+                                if(p.getCounselorType()==0)
+                                    conv.removeParticipants(p.getID());
+                            }
                             updateValues();
                             ImageView convertViewImage=(ImageView)convertView.findViewById(R.id.report_student);
                             convertViewImage.setImageResource(R.drawable.ic_report_problem_white_24dp);
@@ -678,8 +749,26 @@ public class AtlasConversationsList extends FrameLayout implements LayerChangeEv
                         Toast.makeText(context, e.getMessage(), Toast.LENGTH_SHORT).show();
                     }
                 }
-            });
+            });*/
         }
+
+        private AlertDialog getWarningAlertDialog(int stringAddress, int acceptStringAddress, final Conversation conv, final View convertView){
+            // Use the Builder class for convenient dialog construction
+            AlertDialog.Builder builder = new AlertDialog.Builder(context);
+            builder.setMessage(stringAddress)
+                    .setPositiveButton(acceptStringAddress, new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int id) {
+                            changeStudentReportStatus( conv, convertView);
+                        }
+                    }).setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int id) {
+
+                }
+            });
+            // Create the AlertDialog object and return it
+            return builder.create();
+        }
+
         public long getItemId(int position) {
             return position;
         }
@@ -792,7 +881,7 @@ public class AtlasConversationsList extends FrameLayout implements LayerChangeEv
                 if(image != null){
                     //Log.d("caching","caching");
                     String upperCaseData;
-                    if(accountType==0) {
+                    if(accountType==0 || accountType==2) {
                         upperCaseData = (String) conversation.getMetadata().get("counselor.ID");
                     }else {
                         upperCaseData = (String) conversation.getMetadata().get("student.ID");

@@ -244,38 +244,39 @@ public class AtlasMessagesList extends FrameLayout implements LayerChangeEventLi
                 TextView textAvatar = (TextView) convertView.findViewById(com.layer.atlas.R.id.atlas_view_messages_convert_initials);
                 ImageView imageViewAvatar= (ImageView)convertView.findViewById(com.layer.atlas.R.id.atlas_view_nessages_convert_avatar_image);
                 View spacerRight = convertView.findViewById(com.layer.atlas.R.id.atlas_view_messages_convert_spacer_right);
-                if (myMessage) {
-                    spacerRight.setVisibility(View.GONE);
-                    textAvatar.setVisibility(View.INVISIBLE);
-                    imageViewAvatar.setVisibility(View.INVISIBLE);
-                } else {
-                    spacerRight.setVisibility(View.VISIBLE);
-                    Atlas.Participant participant = participantProvider.getParticipant(userId);
-                    String displayText = participant != null ? Atlas.getInitials(participant) : "";
-                    textAvatar.setText(displayText);
-                    textAvatar.setVisibility(View.INVISIBLE);
+                    if (myMessage || (accountType==2 && conv.getMetadata().get("counselor.ID").equals(userId))) {
+                        spacerRight.setVisibility(View.GONE);
+                        textAvatar.setVisibility(View.INVISIBLE);
+                        imageViewAvatar.setVisibility(View.INVISIBLE);
+                    } else {
+                        spacerRight.setVisibility(View.VISIBLE);
+                        Atlas.Participant participant = participantProvider.getParticipant(userId);
+                        String displayText = participant != null ? Atlas.getInitials(participant) : "";
+                        textAvatar.setText(displayText);
+                        textAvatar.setVisibility(View.INVISIBLE);
 
 
-                    if(accountType==0) {
-                        String counselorIdMetadataUpper=(String)getConversation().getMetadata().get("counselor.ID");
-                        if(getBitmapFromCache(counselorIdMetadataUpper.toLowerCase())==null) {
-                            new LoadImage(imageViewAvatar).execute((String) getConversation().getMetadata().get("counselor.avatarString"));
+                        if (accountType == 0) {
+                            String counselorIdMetadataUpper = (String) getConversation().getMetadata().get("counselor.ID");
+                            if (getBitmapFromCache(counselorIdMetadataUpper.toLowerCase()) == null) {
+                                new LoadImage(imageViewAvatar).execute((String) getConversation().getMetadata().get("counselor.avatarString"));
+                            } else {
+                                RoundImage roundImage = new RoundImage(getBitmapFromCache(counselorIdMetadataUpper.toLowerCase()));
+                                imageViewAvatar.setImageDrawable(roundImage);
+                            }
                         } else {
-                            RoundImage roundImage=new RoundImage(getBitmapFromCache(counselorIdMetadataUpper.toLowerCase()));
-                            imageViewAvatar.setImageDrawable(roundImage);
-                        }
-                    }else {
-                        if(getBitmapFromCache(((String)getConversation().getMetadata().get("student.ID")).toLowerCase())==null) {
-                            new LoadImage(imageViewAvatar).execute((String) getConversation().getMetadata().get("student.avatarString"));
-                        } else {
-                            RoundImage roundImage=new RoundImage(getBitmapFromCache(((String)getConversation().getMetadata().get("student.ID")).toLowerCase()));
-                            imageViewAvatar.setImageDrawable(roundImage);
+                            if (getBitmapFromCache(((String) getConversation().getMetadata().get("student.ID")).toLowerCase()) == null) {
+                                new LoadImage(imageViewAvatar).execute((String) getConversation().getMetadata().get("student.avatarString"));
+                            } else {
+                                RoundImage roundImage = new RoundImage(getBitmapFromCache(((String) getConversation().getMetadata().get("student.ID")).toLowerCase()));
+                                imageViewAvatar.setImageDrawable(roundImage);
 
+                            }
                         }
+                        imageViewAvatar.setVisibility(View.VISIBLE);
+
                     }
-                    imageViewAvatar.setVisibility(View.VISIBLE);
 
-                }
                 
                 // mark unsent messages
                 View cellContainer = convertView.findViewById(com.layer.atlas.R.id.atlas_view_messages_cell_container);
@@ -462,8 +463,17 @@ public class AtlasMessagesList extends FrameLayout implements LayerChangeEventLi
         ArrayList<Cell> messageItems = new ArrayList<AtlasMessagesList.Cell>();
         for (Message message : messages) {
             // System messages have `null` user ID
+            boolean isConvReportMessage=false;
             if (message.getSender().getUserId() == null) continue;  
-
+            for (MessagePart messagePart: message.getMessageParts()){
+                String conversationReported="Conversation Reported";
+                String data=new String(messagePart.getData());
+                if(data.equals(conversationReported)) {
+                    isConvReportMessage=true;
+                    break;
+                }
+            }
+            if(isConvReportMessage) continue;
             messageItems.clear();
             buildCellForMessage(message, messageItems);
             cells.addAll(messageItems);
@@ -539,7 +549,7 @@ public class AtlasMessagesList extends FrameLayout implements LayerChangeEventLi
                 for (Map.Entry<String, RecipientStatus> entry : statuses.entrySet()) {
                     // our read-status doesn't matter 
                     if (entry.getKey().equals(client.getAuthenticatedUserId())) continue;
-                    
+                    if  (!entry.getKey().equals(conv.getMetadata().get("counselor.ID")) && !entry.getKey().equals(conv.getMetadata().get("student.ID"))) continue;
                     if (entry.getValue() == RecipientStatus.READ) {
                         latestDeliveredMessage = message;
                         latestReadMessage = message;
@@ -712,14 +722,16 @@ public class AtlasMessagesList extends FrameLayout implements LayerChangeEventLi
             View containerMy    = cellRoot.findViewById(com.layer.atlas.R.id.atlas_view_messages_cell_geo_container_my);
             View containerTheir = cellRoot.findViewById(com.layer.atlas.R.id.atlas_view_messages_cell_geo_container_their);
             
-            boolean myMessage = client.getAuthenticatedUserId().equals(messagePart.getMessage().getSender().getUserId()); 
-            if (myMessage) {
-                containerMy.setVisibility(View.VISIBLE);
-                containerTheir.setVisibility(View.GONE);
-            } else {
-                containerMy.setVisibility(View.GONE);
-                containerTheir.setVisibility(View.VISIBLE);
-            }
+            boolean myMessage = client.getAuthenticatedUserId().equals(messagePart.getMessage().getSender().getUserId());
+
+                if (myMessage ||(accountType==2 && conv.getMetadata().get("counselor.ID").equals(messagePart.getMessage().getSender().getUserId()))) {
+                    containerMy.setVisibility(View.VISIBLE);
+                    containerTheir.setVisibility(View.GONE);
+                } else {
+                    containerMy.setVisibility(View.GONE);
+                    containerTheir.setVisibility(View.VISIBLE);
+                }
+
             ImageView geoImage = myMessage ? geoImageMy : geoImageTheir; 
             ShapedFrameLayout cellCustom = (ShapedFrameLayout) (myMessage ? containerMy : containerTheir);
             
@@ -960,7 +972,7 @@ public class AtlasMessagesList extends FrameLayout implements LayerChangeEventLi
             boolean myMessage = client.getAuthenticatedUserId().equals(cell.messagePart.getMessage().getSender().getUserId());
             TextView textMy = (TextView) cellText.findViewById(com.layer.atlas.R.id.atlas_view_messages_convert_text);
             TextView textOther = (TextView) cellText.findViewById(com.layer.atlas.R.id.atlas_view_messages_convert_text_counterparty);
-            if (myMessage) {
+            if (myMessage || (accountType==2 && conv.getMetadata().get("counselor.ID").equals(cell.messagePart.getMessage().getSender().getUserId()))) {
                 textMy.setVisibility(View.VISIBLE);
                 textMy.setText(text);
                 textOther.setVisibility(View.GONE);
@@ -1041,7 +1053,7 @@ public class AtlasMessagesList extends FrameLayout implements LayerChangeEventLi
             ImageView imageView = myMessage ? imageViewMy : imageViewOther;
             View imageContainer = myMessage ? imageContainerMy : imageContainerOther;
             
-            if (myMessage) {
+            if (myMessage || (accountType==2 && conv.getMetadata().get("counselor.ID").equals(cell.messagePart.getMessage().getSender().getUserId()))) {
                 imageContainerMy.setVisibility(View.VISIBLE);
                 imageContainerOther.setVisibility(View.GONE);
             } else {

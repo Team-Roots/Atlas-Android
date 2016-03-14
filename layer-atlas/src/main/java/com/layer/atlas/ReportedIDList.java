@@ -76,7 +76,7 @@ public class ReportedIDList extends FrameLayout {
     private int dateTextColor;
     private int avatarTextColor;
     private int avatarBackgroundColor;
-
+    private String schoolObjectId;
     private UserClickListener clickListener;
     private UserLongClickListener longClickListener;
 
@@ -121,9 +121,10 @@ public class ReportedIDList extends FrameLayout {
         if (layerClient == null) throw new IllegalArgumentException("LayerClient cannot be null");
         if (reportedIDsList != null) throw new IllegalStateException("AtlasConversationList is already initialized!");
 
-
+        this.schoolObjectId=schoolObjectId;
         this.layerClient = layerClient;
         context=contextLocal;
+
         final int maxMemory = (int) (Runtime.getRuntime().maxMemory() / 1024);
 
         // Use 1/8th of the available memory for this memory cache.
@@ -386,11 +387,26 @@ public class ReportedIDList extends FrameLayout {
 
                 // the bigger .time the highest in the list
                 Query query = Query.builder(Conversation.class)
-                        .predicate(new Predicate(Conversation.Property.PARTICIPANTS, Predicate.Operator.IN, userId))
                         .sortDescriptor(new SortDescriptor(Conversation.Property.LAST_MESSAGE_RECEIVED_AT, SortDescriptor.Order.DESCENDING))
                         .build();
 
+
                 final List<Conversation> results = layerClient.executeQuery(query, Query.ResultType.OBJECTS);
+            for(Conversation c: results) {
+                if(c.getMetadata().get("schoolID")!=null) {
+                    if (!(c.getMetadata().get("schoolID").equals(schoolObjectId))) {
+                        results.remove(c);
+                    } else {
+                        if (c.getParticipants().size() != 0) {
+                            if (!c.getParticipants().contains(userId)) {
+                                results.remove(c);
+                            }
+                        }
+                    }
+                }
+            }
+
+            Log.d("check","check");
             Message last= results.get(0).getLastMessage();
                 String lastMessageText = Atlas.Tools.toString(last);
 

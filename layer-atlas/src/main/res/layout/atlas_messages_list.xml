@@ -35,7 +35,8 @@
         android:gravity="center"
         android:layout_marginRight="@dimen/activity_horizontal_margin"
         android:layout_marginLeft="@dimen/activity_horizontal_margin"
-        style="?android:textAppearanceLarge"
+        android:fontFamily="san-serif-light"
+        android:textSize="26dp"
         android:textColor="#ff929292"
         android:id="@+id/no_messages_description"
         android:text="@string/no_messages_description"/>
