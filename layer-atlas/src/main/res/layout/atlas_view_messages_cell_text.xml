@@ -32,11 +32,13 @@
         android:paddingBottom="6dp"
         android:paddingLeft="12dp"
         android:paddingRight="12dp"
-        
+        android:linksClickable="true"
+        android:autoLink="web"
         android:text="Sample Text Sample Text Very \nLong About 300 Symbols Like\n two full-sized Tweets"
         android:background="@drawable/atlas_shape_rounded16_gray"
-        
+        android:textColorLink="@color/atlas_text_white"
         android:textSize="16sp"
+        android:textIsSelectable="true"
         android:minHeight="34dp"
         
         />
@@ -50,11 +52,13 @@
         android:paddingBottom="6dp"
         android:paddingLeft="12dp"
         android:paddingRight="12dp"
-        
+        android:linksClickable="true"
+        android:autoLink="web"
         android:text="attach, type: image/jpeg, size: 1071119\nSample Text Very \nLong About 300 Symbols Like\n two full-sized Tweets"
         android:background="@drawable/atlas_shape_rounded16_blue"
+        android:textColorLink="@color/atlas_text_white"
         android:gravity="right|center_vertical"
-        
+        android:textIsSelectable="true"
         android:textSize="16sp" 
         android:textColor="@color/atlas_text_white"
         android:minHeight="34dp"

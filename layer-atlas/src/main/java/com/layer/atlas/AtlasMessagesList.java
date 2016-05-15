@@ -939,8 +939,22 @@ public class AtlasMessagesList extends FrameLayout implements LayerChangeEventLi
         }
     }
     
-    private class TextCell extends Cell {
+    private class TextCell extends Cell   {
 
+
+        //on Long click listener for text cells
+//        implements View.OnLongClickListener
+//        /**
+//         * Long click copies message text and sender name to clipboard
+//         */
+//        @Override
+//        public boolean onLongClick(View v) {
+//            TextInfo parsed = (TextInfo) v.getTag();
+//            String text = parsed.getClipboardPrefix() + parsed.getString();
+//            Util.copyToClipboard(v.getContext(), R.string.atlas_text_cell_factory_clipboard_description, text);
+//            Toast.makeText(v.getContext(), R.string.atlas_text_cell_factory_copied_to_clipboard, Toast.LENGTH_SHORT).show();
+//            return true;
+//        }
         protected String text;
         
         public TextCell(MessagePart messagePart) {

@@ -465,8 +465,7 @@ public class ReportedIDList extends FrameLayout {
         for (byte b : thedigest) {
             sb.append(String.format("%02x", b & 0xff));
         }
-        String vanilliconLink = "http://vanillicon.com/" + sb.toString() + ".png";
-        return vanilliconLink;
+        return "http://vanillicon.com/" + sb.toString() + ".png";
     }
 
 

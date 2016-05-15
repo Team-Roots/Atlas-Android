@@ -42,9 +42,11 @@
         android:inputType="text|textMultiLine"
         android:imeOptions="actionDone"
         android:scrollHorizontally="false"
+
         android:paddingLeft="30dp"
 
         />
+    <!--android:textIsSelectable="true"-->
     
     <TextView
         android:id="@+id/atlas_message_composer_send"
