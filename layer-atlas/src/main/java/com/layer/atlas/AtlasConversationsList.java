@@ -359,8 +359,10 @@ public class AtlasConversationsList extends FrameLayout implements LayerChangeEv
                 noConversationDescription.setVisibility(VISIBLE);
                 if(accountType==1){
                     noConversationDescription.setText(R.string.no_conversation_description_counselor);
-                } else {
+                } else if (accountType==0) {
                     noConversationDescription.setText(R.string.no_conversation_description);
+                } else if(accountType==2){
+                    noConversationDescription.setText(R.string.no_reports_description);
                 }
             }
         }

@@ -36,7 +36,7 @@
         android:autoLink="web"
         android:text="Sample Text Sample Text Very \nLong About 300 Symbols Like\n two full-sized Tweets"
         android:background="@drawable/atlas_shape_rounded16_gray"
-        android:textColorLink="@color/atlas_text_white"
+        android:textColorLink="@color/atlas_text_black"
         android:textSize="16sp"
         android:textIsSelectable="true"
         android:minHeight="34dp"
